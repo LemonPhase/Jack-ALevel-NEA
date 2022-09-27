@@ -53,6 +53,7 @@ class Player:
         self.id = id
         self.__token = int(token)
         self.hand = []
+        self.ranks = []
         self.value = 0
         self.aces = 0
     
