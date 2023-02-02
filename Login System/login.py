@@ -2,6 +2,11 @@ from tkinter import *
 
 import sqlite3
 
+import os
+# Change cwd
+os.chdir(os.path.dirname(__file__))
+
+
 with sqlite3.connect("database.db") as db:
     cursor = db.cursor()
 
