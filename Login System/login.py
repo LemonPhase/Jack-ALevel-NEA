@@ -3,6 +3,7 @@ from tkinter import *
 import sqlite3
 
 import os
+
 # Change cwd
 os.chdir(os.path.dirname(__file__))
 
@@ -19,11 +20,11 @@ cursor.execute(
 
 
 def register():
-    newUsername = username.get()
-    newPassword = password.get()
-    print(newUsername, newPassword)
+    NewUsername = UsernameEntry.get()
+    NewPassword = PasswordEntry.get()
+    print(NewUsername, NewPassword)
 
-    cursor.execute("SELECT COUNT(*) from users WHERE username = '" + newUsername + "' ")
+    cursor.execute("SELECT COUNT(*) from users WHERE username = '" + NewUsername + "' ")
     result = cursor.fetchone()
 
     if int(result[0]) > 0:
@@ -32,9 +33,17 @@ def register():
         message["text"] = "Added new user"
         cursor.execute(
             "INSERT INTO users(username, password) VALUES(?,?)",
-            (newUsername, newPassword),
+            (NewUsername, NewPassword),
         )
         db.commit()
+
+
+def login():
+    Username = UsernameEntry.get()
+    Password = PasswordEntry.get()
+    print(Username, Password)
+
+    cursor.execute()
 
 
 window = Tk()
@@ -44,23 +53,26 @@ message = Message(text="", width=160)
 message.place(x=30, y=10)
 message.config(padx=0)
 
-label1 = Label(text="Username: ")
-label1.place(x=30, y=40)
-label1.config(bg="lightgreen", padx=0)
+UsernameLabel = Label(text="Username: ")
+UsernameLabel.place(x=30, y=40)
+UsernameLabel.config(padx=0)
+# bg="lightgreen",
 
-username = Entry(text="")
-username.place(x=150, y=40, width=200, height=25)
-
-
-label2 = Label(text="Password: ")
-label2.place(x=30, y=80)
-label2.config(bg="lightgreen", padx=0)
-
-password = Entry(text="")
-password.place(x=150, y=80, width=200, height=25)
+UsernameEntry = Entry(text="")
+UsernameEntry.place(x=150, y=40, width=200, height=25)
 
 
-button1 = Button(text="Register", command=register)
-button1.place(x=150, y=120, width=75, height=35)
+PasswordLabel = Label(text="Password: ")
+PasswordLabel.place(x=30, y=80)
+PasswordLabel.config(padx=0)
+# bg="lightgreen",
 
+PasswordEntry = Entry(text="")
+PasswordEntry.place(x=150, y=80, width=200, height=25)
+
+RegisterButton = Button(text="Register", command=register)
+RegisterButton.place(x=150, y=120, width=75, height=35)
+
+LoginButton = Button(text="Login", command=login)
+LoginButton.place(x=250, y=120, width=75, height=35)
 window.mainloop()
