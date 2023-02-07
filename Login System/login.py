@@ -12,14 +12,16 @@ with sqlite3.connect("database.db") as db:
     cursor = db.cursor()
 
 
-cursor.execute(
+    cursor.execute(
     """ CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY AUTOINCREMENT, 
     username text NOT NULL, 
     password text NOT NULL)"""
 )
 
+def DisplayMessage(text):
+    message["text"] = text
 
-def register():
+def Register():
     NewUsername = UsernameEntry.get()
     NewPassword = PasswordEntry.get()
     print(NewUsername, NewPassword)
@@ -28,9 +30,9 @@ def register():
     result = cursor.fetchone()
 
     if int(result[0]) > 0:
-        message["text"] = "Error: Username already exists"
+        DisplayMessage("Error: Username already exists")
     else:
-        message["text"] = "Added new user"
+        DisplayMessage("Added new user")
         cursor.execute(
             "INSERT INTO users(username, password) VALUES(?,?)",
             (NewUsername, NewPassword),
@@ -38,18 +40,35 @@ def register():
         db.commit()
 
 
-def login():
+def Login():
     Username = UsernameEntry.get()
     Password = PasswordEntry.get()
     print(Username, Password)
 
-    cursor.execute()
+    cursor.execute(f"SELECT * FROM users WHERE username='{Username}'")
+    UserEntry = cursor.fetchall()
+    print(UserEntry) # Returns the list of entries with entered username
+
+    if len(UserEntry) == 0:
+        DisplayMessage(f"Error: No user with username '{Username}' found")
+    
+    elif len(UserEntry) == 1:
+        User = UserEntry[0] # Tuple of the entry
+        if Password == User[2]:
+            DisplayMessage(f"Succesfully logged in")
+        else:
+            DisplayMessage(f"Incorrect password")
+    else:
+        DisplayMessage(f"Error: database contain entries with the same Username")
+        
 
 
-window = Tk()
-window.geometry("450x180")
 
-message = Message(text="", width=160)
+
+Window = Tk()
+Window.geometry("450x180")
+
+message = Message(text="", width=250)
 message.place(x=30, y=10)
 message.config(padx=0)
 
@@ -70,9 +89,13 @@ PasswordLabel.config(padx=0)
 PasswordEntry = Entry(text="")
 PasswordEntry.place(x=150, y=80, width=200, height=25)
 
-RegisterButton = Button(text="Register", command=register)
+RegisterButton = Button(text="Register", command=Register)
 RegisterButton.place(x=150, y=120, width=75, height=35)
 
-LoginButton = Button(text="Login", command=login)
+LoginButton = Button(text="Login", command=Login)
 LoginButton.place(x=250, y=120, width=75, height=35)
-window.mainloop()
+Window.mainloop()
+
+
+
+db.close()
