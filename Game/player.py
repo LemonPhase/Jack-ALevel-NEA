@@ -4,6 +4,7 @@ import os
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, max_x, max_y, max_speed):
+        super().__init__()
         self.image = pygame.image.load(
             "Graphics\player.png"
         ).convert_alpha()  # Spacecraft Icon
