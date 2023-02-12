@@ -9,6 +9,9 @@ class Alien(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midtop=(0, random.randint(0, x_max)))
         self.x_max = x_max
         self.y_max = y_max
+        self.ready = True
+        self.attack_time = 0
+        self.attack_cooldown = 2000 # ms
     
     
     def move(self):
@@ -18,7 +21,10 @@ class Alien(pygame.sprite.Sprite):
         pass
     
     def recharge(self):
-        pass
+        if not self.ready:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.laser_time >= self.laser_cooldown:
+                self.ready = True
     
     def constraint(self):
         if self.rect.left <= 0:
@@ -32,7 +38,7 @@ class Alien(pygame.sprite.Sprite):
     
 
     def update(self):
-        self.constraint
-
-
-    
+        self.move()
+        self.attack()
+        self.recharge
+        self.constraint()
