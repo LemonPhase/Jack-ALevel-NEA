@@ -51,51 +51,75 @@ class HandDetector():
 
     def FindPosition(self, img, handNo=0, draw=True):
         lmList = []
-        # id_xarr = id_yarr = []
 
         if self.results.multi_hand_landmarks:
             hand = self.results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(hand.landmark):
                 height, width, channel = img.shape
                 cx, cy  = int(lm.x * width), int(lm.y * height)
-                # id_xarr.append(cx)
-                # id_yarr.append(cy)
                 lmList.append([id, cx, cy])
                 
+                # Print all landmarks
                 # print(id, cx, cy)
 
                 if draw:
                     cv2.circle(img, (cx, cy), 1, (255, 0, 255), cv2.FILLED)
             
-            # x_mean = int(round(sum(id_xarr)/21))
-            # y_mean = int(round(sum(id_yarr)/21))
-                
-            # print("Mean:", x_mean, y_mean)
-            # cv2.circle(img, (x_mean, y_mean), 10, (255, 0, 255), cv2.FILLED)
         return lmList
+    
+    def FindMeanPosition(self, img):
+        lmList = self.FindPosition(img)
+        x_sum = y_sum = 0
+        
+        for lm in lmList:
+            cx = lm[1]
+            cy = lm[2]
+            x_sum += cx
+            y_sum += cy
+        
+        x_mean = x_sum / 21
+        y_mean = y_sum / 21
+        return lmList, round(x_mean), round(y_mean)
 
 
 def main():
-    cap = cv2.VideoCapture(0)
-    pTime = 0
-    cTime = 0
+    capture = cv2.VideoCapture(0)
+    previous_time = 0
+    current_time = 0
+
+    current_pos = (0,0)
+    previous_pos = (0,0)
+
     Detector = HandDetector()
     
     while True:
-        success, orignal_img = cap.read()
+        success, orignal_img = capture.read()
         # Flip image
         img = cv2.flip(orignal_img, 1)
         img = Detector.FindHands(img)
-        lmList = Detector.FindPosition(img)
-
+        # lmList = Detector.FindPosition(img)
+        
+        lmList, x_mean, y_mean = Detector.FindMeanPosition(img)
+        
+        # print(lmList)
         # if hand is detected
+
+            
+        
+        current_pos = (x_mean, y_mean)
+        change_pos = tuple(np.subtract(previous_pos, current_pos))
+        previous_pos = current_pos
+
         if len(lmList) != 0:
-            print(lmList[4])
+            # print(lmList[4])
+            print(x_mean, y_mean)
+            print(change_pos)
+        
 
 
-        cTime = time.time()
-        fps = 1/(cTime - pTime)
-        pTime = cTime
+        current_time = time.time()
+        fps = 1/(current_time - previous_time)
+        previous_time = current_time
 
         
         cv2.putText(img, str(int(fps)), (10,70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3)
