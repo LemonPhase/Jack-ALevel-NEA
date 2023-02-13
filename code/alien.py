@@ -12,9 +12,20 @@ class Alien(pygame.sprite.Sprite):
         self.attack_time = 0
         self.attack_cooldown = 2000  # ms
         self.moving = False
+        self.speed = 3
 
     def move(self):
-        pass
+        current_time = pygame.time.get_ticks()
+        if self.moving and current_time - self.move_time < self.move_cooldown:
+            self.rect.x += self.speed
+            if self.rect.left <= 0 or self.rect.right >= self.x_max:
+                self.moving = False
+
+        else:
+            self.moving = True
+            self.move_time = current_time
+            self.move_cooldown = random.randint(0, 4000)
+            self.speed = self.speed * -1
 
     def attack(self):
         pass
@@ -52,18 +63,22 @@ class Ax(Alien):
         self.move_cooldown = random.randint(0, 4000)
         self.speed = speed
 
-    def move(self):
-        current_time = pygame.time.get_ticks()
-        if self.moving and current_time - self.move_time < self.move_cooldown:
-            self.rect.x += self.speed
-            if self.rect.left <= 0 or self.rect.right >= self.x_max:
-                self.moving = False
+    def attack(self):
+        print("Ax attacks!")
 
-        else:
-            self.moving = True
-            self.move_time = current_time
-            self.move_cooldown = random.randint(0, 3000)
-            self.speed = self.speed * -1
+
+
+class Eldredth(Alien):
+    def __init__(self, x_max, y_max, size=(60, 60), speed=3):
+        file_path = f"..\Graphics\Eldredth.png"
+        self.image = pygame.image.load(file_path).convert_alpha()
+        self.image = pygame.transform.scale(self.image, size)
+        super().__init__(x_max, y_max, size)
+        self.move_time = 0
+        self.move_cooldown = random.randint(0, 4000)
+        self.speed = speed
 
     def attack(self):
-        pass
+        print("Edredth attacks!")
+
+

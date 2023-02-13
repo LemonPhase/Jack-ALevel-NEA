@@ -1,7 +1,7 @@
 import pygame, sys
 import os
 from player import Player
-from alien import Ax
+from alien import Ax, Eldredth
 
 # https://www.youtube.com/watch?v=o-6pADy5Mdg&t=108s (Thank you for saving my life, ily)
 
@@ -19,20 +19,39 @@ class Game:
 
         # Alien setup
         self.aliens = pygame.sprite.Group()
-        self.alien_setup()
+        self.alien_setup("Ax")
+        self.alien_setup("Eldredth")
 
-    def alien_setup(self):
-        alien_sprite = Ax(x_max=SCREEN_WIDTH, y_max=SCREEN_HEIGHT)
+    def alien_setup(self, type):
+        if type == "Ax":
+            alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT)
+        elif type == "Eldredth":
+            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.aliens.add(alien_sprite)
+    
+    def collision_check(self):
+        
+        # Player lasers
+        if self.player.sprite.lasers:
+            for laser in self.player.sprite.lasers:
+                if pygame.sprite.spritecollide(laser, self.aliens, True):
+                    laser.kill()
+                    print("Collide!")
+        
+        
+            
 
     def run(self):
+        # Update all sprite groups
+        # Draw all sprite groups
         self.player.update()
         self.player.sprite.lasers.draw(screen)
         self.aliens.update()
+        
+        self.collision_check()
+        
         self.player.draw(screen)
         self.aliens.draw(screen)
-        # Update all sprite groups
-        # Draw all sprite groups
         pass
 
 
