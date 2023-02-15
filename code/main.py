@@ -1,4 +1,5 @@
-import pygame, sys
+import pygame
+import sys
 import os
 import cv2
 from player import Player
@@ -15,7 +16,6 @@ class Game:
     def __init__(self) -> None:
         # Hand detector setup
         self.capture = cv2.VideoCapture(0)
-
 
         # FPS
         self.previous_time = 0
@@ -58,11 +58,11 @@ class Game:
     def run(self):
         # Update all sprite groups
         # Draw all sprite groups
-        
+
         success, original_img = self.capture.read()
         # Flip image horizontally
         img = cv2.flip(original_img, 1)
-        
+
         self.player.update(img)
         self.player.sprite.lasers.draw(screen)
         self.aliens.update()
@@ -71,16 +71,17 @@ class Game:
 
         self.collision_check()
         self.player.draw(screen)
-        
+
         # Calculate FPS
         self.current_time = pygame.time.get_ticks()/1000
-        fps = 1 / (self.current_time - self.previous_time) 
+        fps = 1 / (self.current_time - self.previous_time)
         self.previous_time = self.current_time
         self.aliens.draw(screen)
         cv2.putText(
-            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
+            img, str(int(fps)), (10,
+                                 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
         )
-        cv2.imshow("Image", img)       
+        cv2.imshow("Image", img)
 
         pass
 
@@ -104,8 +105,6 @@ if __name__ == "__main__":
         game.run()
         pygame.display.flip()
         clock.tick(60)
-
-
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
