@@ -11,15 +11,16 @@ os.chdir(os.path.dirname(__file__))
 with sqlite3.connect("database.db") as db:
     cursor = db.cursor()
 
-
     cursor.execute(
-    """ CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY AUTOINCREMENT, 
+        """ CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY AUTOINCREMENT, 
     username text NOT NULL, 
     password text NOT NULL)"""
-)
+    )
+
 
 def DisplayMessage(text):
     message["text"] = text
+
 
 def Register():
     NewUsername = UsernameEntry.get()
@@ -47,22 +48,20 @@ def Login():
 
     cursor.execute(f"SELECT * FROM users WHERE username='{Username}'")
     UserEntry = cursor.fetchall()
-    print(UserEntry) # Returns the list of entries with entered username
+    print(UserEntry)  # Returns the list of entries with entered username
 
     if len(UserEntry) == 0:
         DisplayMessage(f"Error: No user with username '{Username}' found")
-    
+
     elif len(UserEntry) == 1:
-        User = UserEntry[0] # Tuple of the entry
+        User = UserEntry[0]  # Tuple of the entry
         if Password == User[2]:
             DisplayMessage(f"Succesfully logged in")
+            import main
         else:
             DisplayMessage(f"Incorrect password")
     else:
         DisplayMessage(f"Error: database contain entries with the same Username")
-        
-
-
 
 
 Window = Tk()
@@ -95,7 +94,6 @@ RegisterButton.place(x=150, y=120, width=75, height=35)
 LoginButton = Button(text="Login", command=Login)
 LoginButton.place(x=250, y=120, width=75, height=35)
 Window.mainloop()
-
 
 
 db.close()
