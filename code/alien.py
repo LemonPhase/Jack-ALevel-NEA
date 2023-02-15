@@ -1,5 +1,6 @@
 import pygame
 import random
+from laser import Laser, Bomb
 
 
 class Alien(pygame.sprite.Sprite):
@@ -9,9 +10,12 @@ class Alien(pygame.sprite.Sprite):
         self.x_max = x_max
         self.y_max = y_max
         self.ready = True
+        self.lasers = pygame.sprite.Group()
         self.attack_time = 0
         self.attack_cooldown = 2000  # ms
+        self.move_cooldown = random.randint(0, 4000)
         self.moving = False
+        self.move_time = 0
         self.speed = 3
 
     def move(self):
@@ -33,7 +37,7 @@ class Alien(pygame.sprite.Sprite):
     def recharge(self):
         if not self.ready:
             current_time = pygame.time.get_ticks()
-            if current_time - self.laser_time >= self.laser_cooldown:
+            if current_time - self.attack_time >= self.move_cooldown:
                 self.ready = True
 
     def constraint(self):
@@ -49,7 +53,8 @@ class Alien(pygame.sprite.Sprite):
     def update(self):
         self.move()
         self.attack()
-        self.recharge
+        self.recharge()
+        self.lasers.update()
         self.constraint()
 
 
@@ -59,13 +64,13 @@ class Ax(Alien):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, size)
-        self.move_time = 0
-        self.move_cooldown = random.randint(0, 4000)
         self.speed = speed
 
     def attack(self):
-        print("Ax attacks!")
-
+        if self.ready:
+            self.lasers.add(Laser(self.rect.center, self.y_max, laser_speed=-5, dimension=(10,10)))
+            self.ready = False
+            self.attack_time = pygame.time.get_ticks()
 
 
 class Eldredth(Alien):
@@ -74,11 +79,10 @@ class Eldredth(Alien):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, size)
-        self.move_time = 0
-        self.move_cooldown = random.randint(0, 4000)
         self.speed = speed
 
     def attack(self):
-        print("Edredth attacks!")
-
-
+        if self.ready:
+            self.lasers.add(Laser(self.rect.center, self.y_max, laser_speed=-10))
+            self.ready = False
+            self.attack_time = pygame.time.get_ticks()

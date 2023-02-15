@@ -19,27 +19,32 @@ class Game:
 
         # Alien setup
         self.aliens = pygame.sprite.Group()
-        self.alien_setup("Ax")
-        self.alien_setup("Eldredth")
+        self.alien_spawn("Ax")
+        self.alien_spawn("Eldredth")
 
-    def alien_setup(self, type):
+    def alien_spawn(self, type):
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT)
         elif type == "Eldredth":
             alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.aliens.add(alien_sprite)
-    
+
     def collision_check(self):
-        
         # Player lasers
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
                 if pygame.sprite.spritecollide(laser, self.aliens, True):
                     laser.kill()
-                    print("Collide!")
-        
-        
-            
+
+        # Alien lasers
+        if self.aliens.sprites():
+            for alien in self.aliens:
+                for laser in alien.lasers:
+                    if pygame.sprite.spritecollide(laser, self.player, True):
+                        laser.kill()
+                        print("Game over!")
+                        pygame.quit()
+                        sys.exit()
 
     def run(self):
         # Update all sprite groups
@@ -47,9 +52,11 @@ class Game:
         self.player.update()
         self.player.sprite.lasers.draw(screen)
         self.aliens.update()
-        
+        for alien in self.aliens.sprites():
+            alien.lasers.draw(screen)
+
         self.collision_check()
-        
+
         self.player.draw(screen)
         self.aliens.draw(screen)
         pass
