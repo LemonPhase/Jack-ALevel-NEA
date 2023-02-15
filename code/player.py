@@ -1,4 +1,6 @@
 import pygame
+import math
+from hand import HandDetector
 from laser import Laser
 
 
@@ -37,6 +39,20 @@ class Player(pygame.sprite.Sprite):
             self.shoot_laser()
             self.ready = False
             self.laser_time = pygame.time.get_ticks()
+    
+    def get_hand(self, dx, dy):
+        # hand_speed = math.sqrt(dx**2 * dy**2)
+        # if hand_speed != 0:
+        #     if  hand_speed > self.speed:
+        #         self.rect.x += dx / hand_speed * self.speed
+        #         self.rect.y += dy / hand_speed * self.speed
+        #     else:
+        #         self.rect.x += dx / hand_speed
+        #         self.rect.y += dy / hand_speed
+        # else:
+        #     pass
+        self.rect.x += dx * self.speed/2
+        self.rect.y += dy * self.speed/2
 
     def recharge(self):
         if not self.ready:
@@ -57,8 +73,9 @@ class Player(pygame.sprite.Sprite):
     def shoot_laser(self):
         self.lasers.add(Laser(self.rect.center, self.y_max))
 
-    def update(self):
+    def update(self, dx, dy):
         self.get_input()
+        self.get_hand(dx, dy)
         self.constraint()
         self.recharge()
         self.lasers.update()
