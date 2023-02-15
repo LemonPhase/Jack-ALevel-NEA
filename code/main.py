@@ -1,7 +1,9 @@
 import pygame, sys
 import os
+import cv2
 from player import Player
 from alien import Ax, Eldredth
+from hand import HandDetector
 
 # https://www.youtube.com/watch?v=o-6pADy5Mdg&t=108s (Thank you for saving my life, ily)
 
@@ -66,6 +68,15 @@ if __name__ == "__main__":
     pygame.init()
     SCREEN_HEIGHT = 480
     SCREEN_WIDTH = 720
+
+    capture = cv2.VideoCapture(0)
+    previous_time = 0
+    current_time = 0
+
+    current_hand = (0, 0)
+    previous_hand = (0, 0)
+
+    Detector = HandDetector()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     game = Game()
@@ -76,7 +87,29 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
         screen.fill((20, 20, 30))
+        success, orignal_img = capture.read()
+        # Flip image
+        img = cv2.flip(orignal_img, 1)
+        img = Detector.FindHands(img)
 
+        lmlist, x_mean, y_mean = Detector.FindMeanPosition(img)
+        current_hand = (x_mean,y_mean)
+        dx = current_hand[0]-previous_hand[0]
+        dy = current_hand[1]-previous_hand[1]
+
+
+        current_time = pygame.time.get_ticks()/1000
+        fps = 1 / (current_time - previous_time) 
+        previous_time = current_time
+
+        cv2.putText(
+            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
+        )
         game.run()
         pygame.display.flip()
         clock.tick(60)
+
+        cv2.imshow("Image", img)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
