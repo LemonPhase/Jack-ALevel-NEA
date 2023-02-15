@@ -3,6 +3,7 @@ import random
 from laser import Laser, Bomb
 
 
+# Abstract class for alien species
 class Alien(pygame.sprite.Sprite):
     def __init__(self, x_max, y_max, size=(75, 75)):
         super().__init__()
@@ -58,6 +59,7 @@ class Alien(pygame.sprite.Sprite):
         self.constraint()
 
 
+# Ax alien class
 class Ax(Alien):
     def __init__(self, x_max, y_max, size=(75, 75), speed=3):
         file_path = f"..\Graphics\Ax.png"
@@ -73,6 +75,7 @@ class Ax(Alien):
             self.attack_time = pygame.time.get_ticks()
 
 
+# Eldredth alien class
 class Eldredth(Alien):
     def __init__(self, x_max, y_max, size=(60, 60), speed=3):
         file_path = f"..\Graphics\Eldredth.png"

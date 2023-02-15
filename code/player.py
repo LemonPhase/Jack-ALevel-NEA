@@ -1,25 +1,30 @@
 import pygame
 import math
+import cv2
 from hand import HandDetector
 from laser import Laser
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, x_max, y_max, max_speed=5, size=(60, 60)):
+    def __init__(self, pos, x_max, y_max, speed=5, size=(60, 60)):
         super().__init__()
         self.image = pygame.image.load(
             "..\Graphics\player.png"
         ).convert_alpha()  # Spacecraft Icon
         self.image = pygame.transform.scale(self.image, size)
         self.rect = self.image.get_rect(midbottom=pos)
-        self.speed = max_speed
+        self.speed = speed
         self.x_max = x_max
         self.y_max = y_max
         self.ready = True
         self.laser_time = 0
         self.laser_cooldown = 300  # ms
-
         self.lasers = pygame.sprite.Group()
+
+        # Hand detector
+        self.detector = HandDetector()
+        self.current_hand = (0, 0)
+        self.previous_hand = (0, 0)
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -35,24 +40,48 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.speed
 
         # Laser
-        if keys[pygame.K_SPACE] and self.ready:
+        if keys[pygame.K_SPACE]:
             self.shoot_laser()
-            self.ready = False
-            self.laser_time = pygame.time.get_ticks()
-    
-    def get_hand(self, dx, dy):
-        # hand_speed = math.sqrt(dx**2 * dy**2)
+
+    def get_hand(self, img):
         # if hand_speed != 0:
         #     if  hand_speed > self.speed:
-        #         self.rect.x += dx / hand_speed * self.speed
-        #         self.rect.y += dy / hand_speed * self.speed
         #     else:
         #         self.rect.x += dx / hand_speed
         #         self.rect.y += dy / hand_speed
         # else:
         #     pass
-        self.rect.x += dx * self.speed/2
-        self.rect.y += dy * self.speed/2
+        img = self.detector.FindHands(img)
+
+        # List of all hand landmarks in a 2d array
+        # Reference https://google.github.io/mediapipe/solutions/hands.html
+        lmList = self.detector.FindPosition(img)
+
+        if len(lmList) != 0:
+            # print(lmList)
+            self.current_hand = (lmList[9][1:])
+            # Gun gesture (shoot laser)
+            if lmList[16][2] > lmList[9][2] and lmList[20][2] > lmList[9][2]:
+                self.shoot_laser()
+            # Fist gesture (no movment)
+            if lmList[8][2] > lmList[5][2] and lmList[12][2] > lmList[9][2] and lmList[16][2] > lmList[13][2] and lmList[20][2] > lmList[9][2]:
+                self.previous_hand = self.current_hand
+
+        # Movement
+        dx = self.current_hand[0] - self.previous_hand[0]
+        dy = self.current_hand[1] - self.previous_hand[1]
+        self.previous_hand = self.current_hand
+        hand_speed = math.sqrt(dx**2 * dy**2)
+
+        if hand_speed != 0:
+            # Speed limit
+            if hand_speed > self.speed * 20:
+                self.rect.x += dx / hand_speed * self.speed * 20
+                self.rect.y += dy / hand_speed * self.speed * 20
+            else:
+                self.previous_hand = self.current_hand
+                self.rect.x += dx * self.speed/2
+                self.rect.y += dy * self.speed/2
 
     def recharge(self):
         if not self.ready:
@@ -71,11 +100,14 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = self.y_max
 
     def shoot_laser(self):
-        self.lasers.add(Laser(self.rect.center, self.y_max))
+        if self.ready:
+            self.ready = False
+            self.laser_time = pygame.time.get_ticks()
+            self.lasers.add(Laser(self.rect.center, self.y_max))
 
-    def update(self, dx, dy):
+    def update(self, original_img):
         self.get_input()
-        self.get_hand(dx, dy)
+        self.get_hand(original_img)
         self.constraint()
         self.recharge()
         self.lasers.update()

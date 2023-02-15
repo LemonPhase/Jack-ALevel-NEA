@@ -14,10 +14,8 @@ os.chdir(os.path.dirname(__file__))
 class Game:
     def __init__(self) -> None:
         # Hand detector setup
-        self.detector = HandDetector()
         self.capture = cv2.VideoCapture(0)
-        self.current_hand = (0, 0)
-        self.previous_hand = (0, 0)
+
 
         # FPS
         self.previous_time = 0
@@ -60,39 +58,30 @@ class Game:
     def run(self):
         # Update all sprite groups
         # Draw all sprite groups
-        success, orignal_img = self.capture.read()
-        # Flip image
-        img = cv2.flip(orignal_img, 1)
-        img = self.detector.FindHands(img)
-
-        lmlist, x_mean, y_mean = self.detector.FindMeanPosition(img)
-        self.current_hand = (x_mean,y_mean)
-        dx = self.current_hand[0] - self.previous_hand[0]
-        dy = self.current_hand[1] - self.previous_hand[1]
-        self.previous_hand = self.current_hand
-        # print(dx, dy)
-
-
-        self.current_time = pygame.time.get_ticks()/1000
-        fps = 1 / (self.current_time - self.previous_time) 
-        self.previous_time = self.current_time
-
-        cv2.putText(
-            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
-        )
-        cv2.imshow("Image", img)
         
+        success, original_img = self.capture.read()
+        # Flip image horizontally
+        img = cv2.flip(original_img, 1)
         
-        self.player.update(dx, dy)
+        self.player.update(img)
         self.player.sprite.lasers.draw(screen)
         self.aliens.update()
         for alien in self.aliens.sprites():
             alien.lasers.draw(screen)
 
         self.collision_check()
-
         self.player.draw(screen)
+        
+        # Calculate FPS
+        self.current_time = pygame.time.get_ticks()/1000
+        fps = 1 / (self.current_time - self.previous_time) 
+        self.previous_time = self.current_time
         self.aliens.draw(screen)
+        cv2.putText(
+            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
+        )
+        cv2.imshow("Image", img)       
+
         pass
 
 
