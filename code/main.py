@@ -22,17 +22,22 @@ class Game:
         # FPS
         self.previous_time = 0
         self.current_time = 0
+
         # Player setup
         self.player_sprite = Player(
             (SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT
         )
         self.player = pygame.sprite.GroupSingle(self.player_sprite)
 
+        # Heath and score
+        self.lives = 3
+        self.live_surf = pygame.image.load("..\graphics\player.png")
+
         # Alien setup
         self.aliens = pygame.sprite.Group()
         self.alien_spawn("Ax")
         self.alien_spawn("Eldredth")
-        self.alien_spawn("Dash")
+        # self.alien_spawn("Dash")
 
     def cam_capture(self):
         if self.has_capture != False:
@@ -120,12 +125,26 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     game = Game()
 
-    while True:
+    bg_img = pygame.image.load("..\Graphics\Background.jpg")
+    bg_img = pygame.transform.scale(bg_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    running = True
+    i = 0
+    while running:
+        # Background scrolling
+        screen.fill((0, 0, 0))
+        screen.blit(bg_img, (0, i))
+        screen.blit(bg_img, (0, -SCREEN_HEIGHT + i))
+        if i == 1 * SCREEN_HEIGHT:
+            screen.blit(bg_img, (0, SCREEN_HEIGHT + i))
+            i = 0
+        i += 2  # Pixel each scroll
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                running = False
                 pygame.quit()
                 sys.exit()
-        screen.fill((20, 20, 30))
+        # screen.fill((20, 20, 30))
 
         game.run()
         pygame.display.flip()
