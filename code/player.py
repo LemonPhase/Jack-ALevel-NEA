@@ -22,7 +22,6 @@ class Player(pygame.sprite.Sprite):
         self.lasers = pygame.sprite.Group()
 
         # Hand detector
-        # Reference https://google.github.io/mediapipe/solutions/hands.html
         self.detector = HandDetector()
         self.current_hand = (0, 0)
         self.previous_hand = (0, 0)
@@ -44,11 +43,12 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE]:
             self.shoot_laser()
 
-    def get_hand(self, img):
-        # Playing with a camera
-        if img != False:
+    def get_hand(self, img, has_capture):
+        if has_capture:
             img = self.detector.FindHands(img)
+
             # List of all hand landmarks in a 2d array
+            # Reference https://google.github.io/mediapipe/solutions/hands.html
             lmList = self.detector.FindPosition(img)
 
             if len(lmList) != 0:
@@ -81,7 +81,7 @@ class Player(pygame.sprite.Sprite):
                     self.previous_hand = self.current_hand
                     self.rect.x += dx * self.speed / 2
                     self.rect.y += dy * self.speed / 2
-        # No camera
+
         else:
             pass
 
@@ -107,9 +107,9 @@ class Player(pygame.sprite.Sprite):
             self.laser_time = pygame.time.get_ticks()
             self.lasers.add(Laser(self.rect.center, self.y_max))
 
-    def update(self, original_img):
+    def update(self, original_img, has_capture):
         self.get_input()
-        self.get_hand(original_img)
+        self.get_hand(original_img, has_capture)
         self.constraint()
         self.recharge()
         self.lasers.update()
