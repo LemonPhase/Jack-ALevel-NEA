@@ -3,7 +3,7 @@ import sys
 import os
 import cv2
 from player import Player
-from alien import Ax, Eldredth
+from alien import Ax, Eldredth, Dash
 
 # https://www.youtube.com/watch?v=o-6pADy5Mdg&t=108s (Thank you for saving my life, ily)
 
@@ -32,6 +32,7 @@ class Game:
         self.aliens = pygame.sprite.Group()
         self.alien_spawn("Ax")
         self.alien_spawn("Eldredth")
+        self.alien_spawn("Dash")
 
     def cam_capture(self):
         if self.has_capture != False:
@@ -58,10 +59,17 @@ class Game:
 
     def alien_spawn(self, type):
         if type == "Ax":
-            alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT)
+            alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT)
+            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+        elif type == "Dash":
+            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
+
+    def game_over(self):
+        print("Game over!")
+        pygame.quit()
+        sys.exit()
 
     def collision_check(self):
         # Player lasers
@@ -71,14 +79,14 @@ class Game:
                     laser.kill()
 
         # Alien lasers
-        if self.aliens.sprites():
+        if self.aliens:
             for alien in self.aliens:
                 for laser in alien.lasers:
                     if pygame.sprite.spritecollide(laser, self.player, True):
                         laser.kill()
-                        print("Game over!")
-                        pygame.quit()
-                        sys.exit()
+                        self.game_over()
+                if pygame.sprite.spritecollide(alien, self.player, True):
+                    self.game_over()
 
     def run(self):
         # Update all sprite groups
@@ -87,7 +95,6 @@ class Game:
         img = self.cam_capture()
 
         self.player.update(img, self.has_capture)
-
         self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
 
