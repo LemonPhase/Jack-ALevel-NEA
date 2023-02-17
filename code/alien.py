@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from laser import Laser, Bomb
 
 
@@ -32,7 +33,7 @@ class Alien(pygame.sprite.Sprite):
             self.move_cooldown = random.randint(0, 4000)
             self.speed = self.speed * -1
 
-    def attack(self):
+    def attack(self, player_pos):
         pass
 
     def recharge(self):
@@ -51,9 +52,9 @@ class Alien(pygame.sprite.Sprite):
         if self.rect.bottom >= self.y_max:
             self.rect.bottom = self.y_max
 
-    def update(self):
+    def update(self, player_pos=(0, 0)):
         self.move()
-        self.attack()
+        self.attack(player_pos)
         self.recharge()
         self.lasers.update()
         self.constraint()
@@ -68,10 +69,11 @@ class Ax(Alien):
         super().__init__(x_max, y_max, size)
         self.speed = speed
 
-    def attack(self):
+    def attack(self, player_pos):
         if self.ready:
-            self.lasers.add(Laser(self.rect.center, self.y_max,
-                            laser_speed=-5, dimension=(10, 10)))
+            self.lasers.add(
+                Laser(self.rect.center, self.y_max, laser_speed=-5, dimension=(10, 10))
+            )
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 
@@ -85,9 +87,34 @@ class Eldredth(Alien):
         super().__init__(x_max, y_max, size)
         self.speed = speed
 
-    def attack(self):
+    def attack(self, player_pos):
         if self.ready:
-            self.lasers.add(
-                Laser(self.rect.center, self.y_max, laser_speed=-10))
+            self.lasers.add(Laser(self.rect.center, self.y_max, laser_speed=-10))
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
+
+
+class Dash(Alien):
+    def __init__(self, x_max, y_max, size=(50, 50), speed=5):
+        file_path = f"..\Graphics\Dash.png"
+        self.image = pygame.image.load(file_path).convert_alpha()
+        self.image = pygame.transform.scale(self.image, size)
+        super().__init__(x_max, y_max, size)
+        self.speed = speed
+        self.previous_player = (0, 0)
+        self.current_player = (0, 0)
+
+    def move():
+        # No movement, only charges at the player
+        pass
+
+    def attack(self, player_pos):
+        self.current_player = player_pos
+        k = 0.5
+        dx = self.current_player[0] - self.rect.x
+        dy = self.current_player[1] - self.rect.y
+        vx = self.previous_player[0] - self.current_player[0]
+        vy = self.previous_player[1] - self.current_player[1]
+        distance = math.sqrt(dx**2, dy**2)
+        self.rect.x += dx / distance * self.speed + k * vx
+        self.rect.y += dy / distance * self.speed + k * vy

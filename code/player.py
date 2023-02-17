@@ -22,6 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.lasers = pygame.sprite.Group()
 
         # Hand detector
+        # Reference https://google.github.io/mediapipe/solutions/hands.html
         self.detector = HandDetector()
         self.current_hand = (0, 0)
         self.previous_hand = (0, 0)
@@ -44,44 +45,45 @@ class Player(pygame.sprite.Sprite):
             self.shoot_laser()
 
     def get_hand(self, img):
-        # if hand_speed != 0:
-        #     if  hand_speed > self.speed:
-        #     else:
-        #         self.rect.x += dx / hand_speed
-        #         self.rect.y += dy / hand_speed
-        # else:
-        #     pass
-        img = self.detector.FindHands(img)
+        # Playing with a camera
+        if img != False:
+            img = self.detector.FindHands(img)
+            # List of all hand landmarks in a 2d array
+            lmList = self.detector.FindPosition(img)
 
-        # List of all hand landmarks in a 2d array
-        # Reference https://google.github.io/mediapipe/solutions/hands.html
-        lmList = self.detector.FindPosition(img)
+            if len(lmList) != 0:
+                # print(lmList)
+                self.current_hand = lmList[9][1:]
+                # Gun gesture (shoot laser)
+                if lmList[16][2] > lmList[9][2] and lmList[20][2] > lmList[9][2]:
+                    self.shoot_laser()
+                # Fist gesture (no movment)
+                if (
+                    lmList[8][2] > lmList[5][2]
+                    and lmList[12][2] > lmList[9][2]
+                    and lmList[16][2] > lmList[13][2]
+                    and lmList[20][2] > lmList[9][2]
+                ):
+                    self.previous_hand = self.current_hand
 
-        if len(lmList) != 0:
-            # print(lmList)
-            self.current_hand = (lmList[9][1:])
-            # Gun gesture (shoot laser)
-            if lmList[16][2] > lmList[9][2] and lmList[20][2] > lmList[9][2]:
-                self.shoot_laser()
-            # Fist gesture (no movment)
-            if lmList[8][2] > lmList[5][2] and lmList[12][2] > lmList[9][2] and lmList[16][2] > lmList[13][2] and lmList[20][2] > lmList[9][2]:
-                self.previous_hand = self.current_hand
+            # Movement
+            dx = self.current_hand[0] - self.previous_hand[0]
+            dy = self.current_hand[1] - self.previous_hand[1]
+            self.previous_hand = self.current_hand
+            hand_speed = math.sqrt(dx**2 * dy**2)
 
-        # Movement
-        dx = self.current_hand[0] - self.previous_hand[0]
-        dy = self.current_hand[1] - self.previous_hand[1]
-        self.previous_hand = self.current_hand
-        hand_speed = math.sqrt(dx**2 * dy**2)
-
-        if hand_speed != 0:
-            # Speed limit
-            if hand_speed > self.speed * 20:
-                self.rect.x += dx / hand_speed * self.speed * 20
-                self.rect.y += dy / hand_speed * self.speed * 20
-            else:
-                self.previous_hand = self.current_hand
-                self.rect.x += dx * self.speed/2
-                self.rect.y += dy * self.speed/2
+            if hand_speed != 0:
+                # Speed limit
+                if hand_speed > self.speed * 20:
+                    self.rect.x += dx / hand_speed * self.speed * 20
+                    self.rect.y += dy / hand_speed * self.speed * 20
+                else:
+                    self.previous_hand = self.current_hand
+                    self.rect.x += dx * self.speed / 2
+                    self.rect.y += dy * self.speed / 2
+        # No camera
+        else:
+            pass
 
     def recharge(self):
         if not self.ready:
