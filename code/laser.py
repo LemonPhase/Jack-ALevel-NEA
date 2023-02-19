@@ -3,7 +3,7 @@ import math
 
 
 class Laser(pygame.sprite.Sprite):
-    def __init__(self, pos, y_max, laser_speed=15, angle=0, dimension=(4, 20)):
+    def __init__(self, pos, y_max, laser_speed=20, angle=0, dimension=(4, 20)):
         super().__init__()
         self.image = pygame.Surface(dimension)
         self.image.fill("white")

@@ -25,13 +25,17 @@ class Game:
 
         # Player setup
         self.player_sprite = Player(
-            (SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT
+            (SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT,
+            PLAYER_SPEED, PLAYER_SIZE
         )
         self.player = pygame.sprite.GroupSingle(self.player_sprite)
 
-        # Heath and score
+        # Health and score
         self.lives = 3
-        self.live_surf = pygame.image.load("..\graphics\player.png")
+        self.live_surf = pygame.image.load("..\graphics\health.png")
+        self.live_surf = pygame.transform.scale(self.live_surf, (50, 50))
+        # (self.live_surf.get_size()[0]*self.lives - self.live_surf.get_size()[0] + 10)
+        self.live_x_start_pos = 10
 
         # Alien setup
         self.aliens = pygame.sprite.Group()
@@ -66,9 +70,11 @@ class Game:
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_over(self):
@@ -87,17 +93,29 @@ class Game:
         if self.aliens:
             for alien in self.aliens:
                 for laser in alien.lasers:
-                    if pygame.sprite.spritecollide(laser, self.player, True):
+                    if pygame.sprite.spritecollide(laser, self.player, False):
                         laser.kill()
-                        self.game_over()
-                if pygame.sprite.spritecollide(alien, self.player, True):
-                    self.game_over()
+                        self.lives -= 1
+                if pygame.sprite.spritecollide(alien, self.player, False):
+                    alien.kill()
+                    self.lives -= 1
+            if self.lives <= 0:
+                self.game_over()
+
+    def display_lives(self):
+        for live in range(self.lives):
+            x = self.live_x_start_pos + \
+                (live * self.live_surf.get_size()[0])
+            screen.blit(self.live_surf, (x, SCREEN_HEIGHT -
+                        self.live_surf.get_size()[1]-5))
 
     def run(self):
         # Update all sprite groups
         # Draw all sprite groups
 
         img = self.cam_capture()
+
+        self.display_lives()
 
         self.player.update(img, self.has_capture)
         self.player.sprite.lasers.draw(screen)
@@ -120,6 +138,8 @@ if __name__ == "__main__":
     pygame.init()
     SCREEN_HEIGHT = 720
     SCREEN_WIDTH = 1080
+    PLAYER_SPEED = 5
+    PLAYER_SIZE = (60, 60)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()

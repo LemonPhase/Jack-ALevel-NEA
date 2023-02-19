@@ -6,7 +6,7 @@ from laser import Laser
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, x_max, y_max, speed=5, size=(60, 60)):
+    def __init__(self, pos, x_max, y_max, speed, size):
         super().__init__()
         self.image = pygame.image.load(
             "..\Graphics\player.png"
