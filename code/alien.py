@@ -69,12 +69,12 @@ class Ax(Alien):
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
         self.speed = speed
+        self.score = 10
 
     def attack(self):
         if self.ready:
             self.lasers.add(
-                Laser(self.rect.center, self.y_max,
-                      laser_speed=-5, dimension=(10, 10))
+                Laser(self.rect.center, self.y_max, laser_speed=-5, dimension=(10, 10))
             )
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
@@ -88,11 +88,11 @@ class Eldredth(Alien):
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
         self.speed = speed
+        self.score = 10
 
     def attack(self):
         if self.ready:
-            self.lasers.add(
-                Laser(self.rect.center, self.y_max, laser_speed=-10))
+            self.lasers.add(Laser(self.rect.center, self.y_max, laser_speed=-10))
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 
@@ -104,6 +104,7 @@ class Dash(Alien):
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
         self.speed = speed
+        self.score = 5
         self.current_player = (0, 0)
         self.previous_player = (0, 0)
 
@@ -115,7 +116,7 @@ class Dash(Alien):
         self.current_player = self.player_sprite.rect.center
         dx = self.current_player[0] - self.rect.center[0]
         dy = self.current_player[1] - self.rect.center[1]
-        print(dx, dy)
+        # print(dx, dy)
         vx = self.current_player[0] - self.previous_player[0]
         vy = self.current_player[1] - self.previous_player[1]
         self.previous_player = self.current_player

@@ -25,8 +25,11 @@ class Game:
 
         # Player setup
         self.player_sprite = Player(
-            (SCREEN_WIDTH / 2, SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT,
-            PLAYER_SPEED, PLAYER_SIZE
+            (SCREEN_WIDTH / 2, SCREEN_HEIGHT),
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            PLAYER_SPEED,
+            PLAYER_SIZE,
         )
         self.player = pygame.sprite.GroupSingle(self.player_sprite)
 
@@ -36,12 +39,14 @@ class Game:
         self.live_surf = pygame.transform.scale(self.live_surf, (50, 50))
         # (self.live_surf.get_size()[0]*self.lives - self.live_surf.get_size()[0] + 10)
         self.live_x_start_pos = 10
+        self.score = 0
+        self.font = pygame.font.Font("..\Font\Brandford.otf", 50)
 
         # Alien setup
         self.aliens = pygame.sprite.Group()
         self.alien_spawn("Ax")
         self.alien_spawn("Eldredth")
-        # self.alien_spawn("Dash")
+        self.alien_spawn("Dash")
 
     def cam_capture(self):
         if self.has_capture != False:
@@ -66,15 +71,16 @@ class Game:
         )
         cv2.imshow("Image", img)
 
+    def game_progress(self):
+        game_time = pygame.time.get_ticks()  # in seconds
+
     def alien_spawn(self, type):
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_over(self):
@@ -86,7 +92,11 @@ class Game:
         # Player lasers
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
-                if pygame.sprite.spritecollide(laser, self.aliens, True):
+
+                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
+                if alien_hit:
+                    for alien in alien_hit:
+                        self.score += alien.score
                     laser.kill()
 
         # Alien lasers
@@ -104,18 +114,21 @@ class Game:
 
     def display_lives(self):
         for live in range(self.lives):
-            x = self.live_x_start_pos + \
-                (live * self.live_surf.get_size()[0])
-            screen.blit(self.live_surf, (x, SCREEN_HEIGHT -
-                        self.live_surf.get_size()[1]-5))
+            x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
+            screen.blit(
+                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
+            )
+
+    def display_score(self):
+        score_surf = self.font.render(f"Score: {self.score}", False, "white")
+        score_rect = score_surf.get_rect(topleft=(10, 0))
+        screen.blit(score_surf, score_rect)
 
     def run(self):
         # Update all sprite groups
         # Draw all sprite groups
 
         img = self.cam_capture()
-
-        self.display_lives()
 
         self.player.update(img, self.has_capture)
         self.player.sprite.lasers.draw(screen)
@@ -128,8 +141,10 @@ class Game:
 
         self.collision_check()
 
-        # Calculate FPS
+        self.display_lives()
+        self.display_score()
 
+        # Calculate FPS
         if self.has_capture:
             self.calculate_fps(img)
 
@@ -150,6 +165,7 @@ if __name__ == "__main__":
     running = True
     i = 0
     while running:
+        print(round(pygame.time.get_ticks() / 1000, 2))
         # Background scrolling
         screen.fill((0, 0, 0))
         screen.blit(bg_img, (0, i))
@@ -157,7 +173,7 @@ if __name__ == "__main__":
         if i == 1 * SCREEN_HEIGHT:
             screen.blit(bg_img, (0, SCREEN_HEIGHT + i))
             i = 0
-        i += 2  # Pixel each scroll
+        i += 3  # Pixel each scroll
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
