@@ -106,7 +106,7 @@ class Eldredth(Alien):
 
 
 class Dash(Alien):
-    def __init__(self, x_max, y_max, player_sprite, size=(50, 50), speed=5):
+    def __init__(self, x_max, y_max, player_sprite, size=(50, 50), speed=7):
         file_path = f"..\Graphics\Dash.png"
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)

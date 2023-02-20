@@ -79,8 +79,8 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y += dy / hand_speed * self.speed * 20
                 else:
                     self.previous_hand = self.current_hand
-                    self.rect.x += dx * self.speed / 2
-                    self.rect.y += dy * self.speed / 2
+                    self.rect.x += dx * self.speed / 4
+                    self.rect.y += dy * self.speed / 4
 
         else:
             pass
