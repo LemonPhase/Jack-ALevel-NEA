@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, x_max, y_max, speed, size):
         super().__init__()
         self.image = pygame.image.load(
-            "..\Graphics\player.png"
+            "..\Graphics\Player.png"
         ).convert_alpha()  # Spacecraft Icon
         self.image = pygame.transform.scale(self.image, size)
         self.rect = self.image.get_rect(midbottom=pos)

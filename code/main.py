@@ -42,7 +42,6 @@ class Game:
         self.lives = 3
         self.live_surf = pygame.image.load("..\graphics\health.png")
         self.live_surf = pygame.transform.scale(self.live_surf, (50, 50))
-        # (self.live_surf.get_size()[0]*self.lives - self.live_surf.get_size()[0] + 10)
         self.live_x_start_pos = 10
         self.score = 0
         self.font = pygame.font.Font("..\Font\Brandford.otf", 50)
@@ -52,9 +51,6 @@ class Game:
         self.aliens = pygame.sprite.Group()
         self.last_spawn = 0
         self.spawn_cooldown = 0
-        # self.alien_spawn("Ax")
-        # self.alien_spawn("Eldredth")
-        # self.alien_spawn("Dash")
 
     def cam_capture(self):
         if self.has_capture != False:
@@ -95,9 +91,11 @@ class Game:
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_over(self):
@@ -110,7 +108,8 @@ class Game:
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
 
-                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
+                alien_hit = pygame.sprite.spritecollide(
+                    laser, self.aliens, True)
                 if alien_hit:
                     for alien in alien_hit:
                         self.score += alien.score
@@ -133,13 +132,21 @@ class Game:
         for live in range(self.lives):
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
             screen.blit(
-                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
+                self.live_surf, (x, SCREEN_HEIGHT -
+                                 self.live_surf.get_size()[1] - 5)
             )
 
     def display_score(self):
         score_surf = self.font.render(f"Score: {self.score}", False, "white")
-        score_rect = score_surf.get_rect(topleft=(10, 0))
+        score_rect = score_surf.get_rect(topleft=(15, 10))
         screen.blit(score_surf, score_rect)
+
+    def display_time(self):
+        time_surf = self.font.render(
+            str(round(pygame.time.get_ticks() / 1000, 1)), False, "white")
+        time_rect = time_surf.get_rect(
+            topright=(SCREEN_WIDTH-15, 10))
+        screen.blit(time_surf, time_rect)
 
     def run(self):
         # Update all sprite groups
@@ -162,6 +169,7 @@ class Game:
 
         self.display_lives()
         self.display_score()
+        self.display_time()
 
         # Calculate FPS
         if self.has_capture:
@@ -184,7 +192,6 @@ if __name__ == "__main__":
     running = True
     i = 0
     while running:
-        print(round(pygame.time.get_ticks() / 1000, 2))
         # Background scrolling
         screen.fill((0, 0, 0))
         screen.blit(bg_img, (0, i))
