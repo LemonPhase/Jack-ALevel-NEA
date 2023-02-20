@@ -74,7 +74,13 @@ class Ax(Alien):
     def attack(self):
         if self.ready:
             self.lasers.add(
-                Laser(self.rect.center, self.y_max, laser_speed=-5, dimension=(10, 10))
+                Laser(
+                    self.rect.center,
+                    self.y_max,
+                    "red",
+                    laser_speed=-5,
+                    dimension=(10, 10),
+                )
             )
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
@@ -92,7 +98,9 @@ class Eldredth(Alien):
 
     def attack(self):
         if self.ready:
-            self.lasers.add(Laser(self.rect.center, self.y_max, laser_speed=-10))
+            self.lasers.add(
+                Laser(self.rect.center, self.y_max, "green", laser_speed=-10)
+            )
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 

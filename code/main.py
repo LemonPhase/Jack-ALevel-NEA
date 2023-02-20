@@ -2,6 +2,8 @@ import pygame
 import sys
 import os
 import cv2
+import math
+import random
 from player import Player
 from alien import Ax, Eldredth, Dash
 
@@ -14,10 +16,13 @@ os.chdir(os.path.dirname(__file__))
 class Game:
     def __init__(self) -> None:
         # Camera setup
-        self.capture = cv2.VideoCapture(0)
-        self.has_capture = True
-        if self.capture == None or not self.capture.isOpened():
-            self.has_capture = False
+        try:
+            self.capture = cv2.VideoCapture(0)
+            self.has_capture = True
+            if self.capture == None or not self.capture.isOpened():
+                self.has_capture = False
+        except:
+            print("Error: no capture")
 
         # FPS
         self.previous_time = 0
@@ -43,10 +48,13 @@ class Game:
         self.font = pygame.font.Font("..\Font\Brandford.otf", 50)
 
         # Alien setup
+        self.aliens_types = ["Ax", "Eldredth", "Dash"]
         self.aliens = pygame.sprite.Group()
-        self.alien_spawn("Ax")
-        self.alien_spawn("Eldredth")
-        self.alien_spawn("Dash")
+        self.last_spawn = 0
+        self.spawn_cooldown = 0
+        # self.alien_spawn("Ax")
+        # self.alien_spawn("Eldredth")
+        # self.alien_spawn("Dash")
 
     def cam_capture(self):
         if self.has_capture != False:
@@ -71,8 +79,17 @@ class Game:
         )
         cv2.imshow("Image", img)
 
+    def calculate_cd(self, time):
+        return math.exp(-1 * (1 / 30 * time - 1)) + 1 / 2
+
     def game_progress(self):
-        game_time = pygame.time.get_ticks()  # in seconds
+        time = pygame.time.get_ticks() / 1000  # in seconds
+        if (time - self.last_spawn) >= self.spawn_cooldown:
+            self.alien_spawn(random.choice(self.aliens_types))
+            self.last_spawn = time
+            self.spawn_cooldown = self.calculate_cd(time)
+        else:
+            pass
 
     def alien_spawn(self, type):
         if type == "Ax":
@@ -133,6 +150,8 @@ class Game:
         self.player.update(img, self.has_capture)
         self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
+
+        self.game_progress()
 
         self.aliens.update()
         self.aliens.draw(screen)

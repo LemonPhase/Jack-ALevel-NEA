@@ -3,10 +3,10 @@ import math
 
 
 class Laser(pygame.sprite.Sprite):
-    def __init__(self, pos, y_max, laser_speed=20, angle=0, dimension=(4, 20)):
+    def __init__(self, pos, y_max, color, laser_speed=20, angle=0, dimension=(4, 20)):
         super().__init__()
         self.image = pygame.Surface(dimension)
-        self.image.fill("white")
+        self.image.fill(color)
         self.rect = self.image.get_rect(center=pos)
         self.laser_speed = laser_speed
         self.y_max = y_max
@@ -28,8 +28,8 @@ class Laser(pygame.sprite.Sprite):
 class Bomb(pygame.sprite.Sprite):
     def __init__(self, pos, y_max, laser_speed=-5):
         super().__init__()
-        self.image = pygame.Surface((10, 10))
-        self.image.fill("white")
+        self.image = pygame.Surface((30, 30))
+        self.image.fill("red")
         self.rect = self.image.get_rect(center=pos)
         self.laser_speed = laser_speed
         self.y_max = y_max

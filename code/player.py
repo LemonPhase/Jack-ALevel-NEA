@@ -105,7 +105,7 @@ class Player(pygame.sprite.Sprite):
         if self.ready:
             self.ready = False
             self.laser_time = pygame.time.get_ticks()
-            self.lasers.add(Laser(self.rect.center, self.y_max))
+            self.lasers.add(Laser(self.rect.center, self.y_max, "blue"))
 
     def update(self, original_img, has_capture):
         self.get_input()
