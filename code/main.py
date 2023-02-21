@@ -58,9 +58,6 @@ class Game:
         self.spawn_cooldown = 0
 
         # Audio setup
-        music = pygame.mixer.Sound("..\Audio\GalaxyNauts.wav")
-        music.set_volume(0.2)
-        music.play(loops=-1)
 
         self.explosion_sound = pygame.mixer.Sound("..\Audio\Explosion.wav")
         self.explosion_sound.set_volume(0.15)
@@ -287,6 +284,12 @@ def main_menu():
     game = Game()
     pygame.display.set_caption("Main Menu")
     running = True
+
+    # Music
+    music = pygame.mixer.Sound("..\Audio\GalaxyNauts.wav")
+    music.set_volume(0.2)
+    music.play(loops=-1)
+
     new_game = False
 
     # Loop logic:
