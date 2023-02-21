@@ -20,6 +20,8 @@ class Alien(pygame.sprite.Sprite):
         self.move_time = 0
         self.speed = 3
         self.player_sprite = player_sprite
+        self.laser_sound = pygame.mixer.Sound("..\Audio\Laser.wav")
+        self.laser_sound.set_volume(0.05)
 
     def move(self):
         current_time = pygame.time.get_ticks()
@@ -79,9 +81,10 @@ class Ax(Alien):
                     self.y_max,
                     "red",
                     laser_speed=-5,
-                    dimension=(10, 10),
+                    dimension=(15, 15),
                 )
             )
+            self.laser_sound.play()
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 
@@ -101,6 +104,7 @@ class Eldredth(Alien):
             self.lasers.add(
                 Laser(self.rect.center, self.y_max, "green", laser_speed=-10)
             )
+            self.laser_sound.play()
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 

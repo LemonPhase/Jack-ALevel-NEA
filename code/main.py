@@ -57,6 +57,14 @@ class Game:
         self.last_spawn = 0
         self.spawn_cooldown = 0
 
+        # Audio setup
+        music = pygame.mixer.Sound("..\Audio\GalaxyNauts.wav")
+        music.set_volume(0.2)
+        music.play(loops=-1)
+
+        self.explosion_sound = pygame.mixer.Sound("..\Audio\Explosion.wav")
+        self.explosion_sound.set_volume(0.15)
+
     def cam_capture(self):
         if self.has_capture != False:
             success, original_img = self.capture.read()
@@ -116,6 +124,7 @@ class Game:
                 alien_hit = pygame.sprite.spritecollide(
                     laser, self.aliens, True)
                 if alien_hit:
+                    self.explosion_sound.play()
                     for alien in alien_hit:
                         self.score += alien.score
                     laser.kill()

@@ -26,6 +26,10 @@ class Player(pygame.sprite.Sprite):
         self.current_hand = (0, 0)
         self.previous_hand = (0, 0)
 
+        # Audio
+        self.laser_sound = pygame.mixer.Sound("..\Audio\Laser.wav")
+        self.laser_sound.set_volume(0.1)
+
     def get_input(self):
         keys = pygame.key.get_pressed()
 
@@ -105,6 +109,7 @@ class Player(pygame.sprite.Sprite):
         if self.ready:
             self.ready = False
             self.laser_time = pygame.time.get_ticks()
+            self.laser_sound.play()
             self.lasers.add(Laser(self.rect.center, self.y_max, "blue"))
 
     def update(self, original_img, has_capture):

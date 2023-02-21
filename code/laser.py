@@ -28,7 +28,7 @@ class Laser(pygame.sprite.Sprite):
 class Bomb(pygame.sprite.Sprite):
     def __init__(self, pos, y_max, laser_speed=-5):
         super().__init__()
-        self.image = pygame.Surface((30, 30))
+        self.image = pygame.Surface((20, 20))
         self.image.fill("red")
         self.rect = self.image.get_rect(center=pos)
         self.laser_speed = laser_speed
