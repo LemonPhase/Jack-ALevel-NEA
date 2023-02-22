@@ -97,11 +97,9 @@ class Game:
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_progress(self):
@@ -118,8 +116,7 @@ class Game:
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
 
-                alien_hit = pygame.sprite.spritecollide(
-                    laser, self.aliens, True)
+                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
                 if alien_hit:
                     self.explosion_sound.play()
                     for alien in alien_hit:
@@ -134,6 +131,7 @@ class Game:
                         laser.kill()
                         self.lives -= 1
                 if pygame.sprite.spritecollide(alien, self.player, False):
+                    self.explosion_sound.play()
                     alien.kill()
                     self.lives -= 1
 
@@ -141,21 +139,26 @@ class Game:
         for live in range(self.lives):
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
             screen.blit(
-                self.live_surf, (x, SCREEN_HEIGHT -
-                                 self.live_surf.get_size()[1] - 5)
+                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
             )
 
     def display_score(self):
-        score_surf = self.get_font(50).render(
-            f"Score: {self.score}", False, "white")
+        score_surf = self.get_font(50).render(f"Score: {self.score}", False, "white")
         score_rect = score_surf.get_rect(topleft=(15, 10))
         screen.blit(score_surf, score_rect)
 
     def display_time(self):
         time_surf = self.get_font(50).render(
-            str(round((self.play_time + pygame.time.get_ticks() - self.start_time) / 1000, 1)), False, "white")
-        time_rect = time_surf.get_rect(
-            topright=(SCREEN_WIDTH-15, 10))
+            str(
+                round(
+                    (self.play_time + pygame.time.get_ticks() - self.start_time) / 1000,
+                    1,
+                )
+            ),
+            False,
+            "white",
+        )
+        time_rect = time_surf.get_rect(topright=(SCREEN_WIDTH - 15, 10))
         screen.blit(time_surf, time_rect)
 
     def quit_game(self):
@@ -181,18 +184,32 @@ class Game:
             menu_mouse_pos = pygame.mouse.get_pos()
 
             # Menu title
-            menu_text = self.get_font(100).render(
-                "Pause Menu", True, (64, 192, 225))
-            menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH/2, 150))
+            menu_text = self.get_font(100).render("Pause Menu", True, (64, 192, 225))
+            menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
             screen.blit(menu_text, menu_rect)
 
             # Button setup
-            continue_button = Button(pos=(SCREEN_WIDTH/2, 325), text_input="CONTINUE",
-                                     font=self.get_font(75), base_color=(196, 252, 192), hovering_color="white")
-            main_menu_button = Button(pos=(SCREEN_WIDTH/2, 450), text_input="MAIN MENU",
-                                      font=self.get_font(75), base_color=(196, 252, 192), hovering_color="white")
-            quit_button = Button(pos=(SCREEN_WIDTH/2, 575), text_input="QUIT",
-                                 font=self.get_font(75), base_color=(196, 252, 192), hovering_color="white")
+            continue_button = Button(
+                pos=(SCREEN_WIDTH / 2, 325),
+                text_input="CONTINUE",
+                font=self.get_font(75),
+                base_color=(196, 252, 192),
+                hovering_color="white",
+            )
+            main_menu_button = Button(
+                pos=(SCREEN_WIDTH / 2, 450),
+                text_input="MAIN MENU",
+                font=self.get_font(75),
+                base_color=(196, 252, 192),
+                hovering_color="white",
+            )
+            quit_button = Button(
+                pos=(SCREEN_WIDTH / 2, 575),
+                text_input="QUIT",
+                font=self.get_font(75),
+                base_color=(196, 252, 192),
+                hovering_color="white",
+            )
 
             # Display button
             for button in [continue_button, main_menu_button, quit_button]:
@@ -256,6 +273,7 @@ class Game:
 
         # Gameplay loop
         while running:
+            pygame.display.set_caption("PIU PIU PIU!!!")
 
             # Background scrolling
             screen.fill((0, 0, 0))
@@ -277,6 +295,23 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = self.pause_menu()
+
+        # Display game over
+        game_over = True
+        start_time = pygame.time.get_ticks()
+        while game_over:
+            screen.fill((0, 0, 0))
+            if pygame.time.get_ticks() - start_time >= 3000:
+                game_over = False
+            game_over_text = self.get_font(200).render(
+                "GAME OVER!", False, (192, 64, 64)
+            )
+            game_over_rect = game_over_text.get_rect(
+                center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+            )
+            screen.blit(game_over_text, game_over_rect)
+            pygame.display.set_caption("Game over")
+            pygame.display.update()
 
 
 def main_menu():
@@ -304,19 +339,33 @@ def main_menu():
         menu_mouse_pos = pygame.mouse.get_pos()
 
         # Title
-        menu_text = game.get_font(150).render(
-            "GALAXY KNIGHT", True, (64, 192, 225))
+        menu_text = game.get_font(150).render("GALAXY KNIGHT", True, (64, 192, 225))
 
-        menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH/2, 150))
+        menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
         screen.blit(menu_text, menu_rect)
 
         # Button setup
-        play_button = Button(pos=(SCREEN_WIDTH/2, 325), text_input="PLAY",
-                             font=game.get_font(100), base_color=(196, 252, 192), hovering_color="white")
-        leader_board_button = Button(pos=(SCREEN_WIDTH/2, 450), text_input="LEADER BOARD",
-                                     font=game.get_font(100), base_color=(196, 252, 192), hovering_color="white")
-        quit_button = Button(pos=(SCREEN_WIDTH/2, 575), text_input="QUIT",
-                             font=game.get_font(100), base_color=(196, 252, 192), hovering_color="white")
+        play_button = Button(
+            pos=(SCREEN_WIDTH / 2, 325),
+            text_input="NEW GAME",
+            font=game.get_font(100),
+            base_color=(196, 252, 192),
+            hovering_color="white",
+        )
+        leader_board_button = Button(
+            pos=(SCREEN_WIDTH / 2, 450),
+            text_input="LEADER BOARD",
+            font=game.get_font(100),
+            base_color=(196, 252, 192),
+            hovering_color="white",
+        )
+        quit_button = Button(
+            pos=(SCREEN_WIDTH / 2, 575),
+            text_input="QUIT",
+            font=game.get_font(100),
+            base_color=(196, 252, 192),
+            hovering_color="white",
+        )
 
         # Display button
         for button in [play_button, leader_board_button, quit_button]:
