@@ -84,22 +84,77 @@ class Game:
     def get_leader_board(self):
         self.leader_board = []
 
+        # Parsing the txt file
         for leader in self.lb_list:
-            lst = leader.split(",")
+            lst = leader.split(", ")
             self.leader_board.append([int(lst[i]) for i in range(2)])
+        
+        if len(self.leader_board) < 5:
+            for i in range(5 - len(self.leader_board)):
+                self.leader_board.append([0,0])
 
     def update_leader_board(self):
         self.leader_board.append([self.score, int(round(self.play_time, 0))])
+        # Sort by the first index, reverse order
         self.leader_board.sort(key=lambda x: x[0], reverse=True)
         new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
         print(new_leader_board)
-        if len(new_leader_board) < 5:
-            for line in new_leader_board:
-                self.file.write(",".join(line) + "\n")
-        else:
-            for line in new_leader_board[:4]:
-                self.file.write(",".join(line) + "\n")
+        for line in new_leader_board[:5]:
+            self.file.write(", ".join(line) + "\n")
         self.file.close()
+
+    def display_leader_board(self):
+        self.get_leader_board()
+        running = True
+        display_lb = self.leader_board
+        # if len(display_lb) < 5:
+        #     for i in range(5 - len(display_lb)):
+        #         display_lb.append([0,0])
+
+
+        while running:
+            screen.fill(BG_COLOR)
+
+
+            title_text = self.get_font(150).render("LEADERBOARD", False, TITLE_COLOR)
+            sub_title_text = self.get_font(75).render("SCORE        TIME", False, SUB_COLOR)
+
+            title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
+            sub_title_rect = sub_title_text.get_rect(center=(SCREEN_WIDTH / 2, 275))
+
+            font_size = 50
+            first_text = self.get_font(font_size).render(f"1st: {display_lb[0][0]}              {display_lb[0][1]}", False, TEXT_COLOR)
+            second_text = self.get_font(font_size).render(f"2nd: {display_lb[1][0]}             {display_lb[1][1]}", False, TEXT_COLOR)
+            third_text = self.get_font(font_size).render(f"3rd: {display_lb[2][0]}              {display_lb[2][1]}", False, TEXT_COLOR)
+            forth_text = self.get_font(font_size).render(f"4th: {display_lb[3][0]}              {display_lb[3][1]}", False, TEXT_COLOR)
+            fifth_text = self.get_font(font_size).render(f"5th: {display_lb[4][0]}              {display_lb[4][1]}", False, TEXT_COLOR)
+
+            xpos = SCREEN_WIDTH/2 - 25
+            start_ypos = 350
+            gap = 75
+            first_rect = first_text.get_rect(center=(xpos, start_ypos))
+            second_rect = second_text.get_rect(center=(xpos, start_ypos + gap))
+            third_rect = third_text.get_rect(center=(xpos, start_ypos + gap*2))
+            forth_rect = forth_text.get_rect(center=(xpos, start_ypos + gap*3))
+            fifth_rect = fifth_text.get_rect(center=(xpos, start_ypos + gap*4))
+
+            screen.blit(title_text, title_rect)
+            screen.blit(sub_title_text, sub_title_rect)
+            screen.blit(first_text, first_rect)
+            screen.blit(second_text, second_rect)
+            screen.blit(third_text, third_rect)
+            screen.blit(forth_text, forth_rect)
+            screen.blit(fifth_text, fifth_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    self.quit_game()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+
+            pygame.display.update()
 
     def calculate_cd(self, time):
         # the respawn cd decreases as time passes, minimum cd 0.5s
@@ -109,11 +164,9 @@ class Game:
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(
-                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_progress(self):
@@ -129,9 +182,7 @@ class Game:
         # Player lasers
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
-
-                alien_hit = pygame.sprite.spritecollide(
-                    laser, self.aliens, True)
+                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
                 if alien_hit:
                     self.explosion_sound.play()
                     for alien in alien_hit:
@@ -154,40 +205,30 @@ class Game:
         for live in range(self.lives):
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
             screen.blit(
-                self.live_surf, (x, SCREEN_HEIGHT -
-                                 self.live_surf.get_size()[1] - 5)
+                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
             )
 
     def display_score(self):
-        score_surf = self.get_font(50).render(
-            f"Score: {self.score}", False, "white")
+        score_surf = self.get_font(50).render(f"Score: {self.score}", False, "white")
         score_rect = score_surf.get_rect(topleft=(15, 10))
         screen.blit(score_surf, score_rect)
 
     def display_time(self):
         self.play_time += self.current_time - self.previous_time
         time_surf = self.get_font(50).render(
-            str(
-                round(
-                    self.play_time,
-                    1,
-                )
-            ),
-            False,
-            "white",
+            str(round(self.play_time, 1)), False, "white"
         )
         time_rect = time_surf.get_rect(topright=(SCREEN_WIDTH - 15, 10))
         screen.blit(time_surf, time_rect)
 
     def quit_game(self):
         # Save the leader board
-        save_leader_board = [[str(i) for i in lst]
-                             for lst in self.leader_board]
+        save_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
         if len(save_leader_board) < 5:
             for line in save_leader_board:
                 self.file.write(", ".join(line) + "\n")
         else:
-            for line in save_leader_board[:4]:
+            for line in save_leader_board[:5]:
                 self.file.write(", ".join(line) + "\n")
         self.file.close()
 
@@ -210,8 +251,7 @@ class Game:
             menu_mouse_pos = pygame.mouse.get_pos()
 
             # Menu title
-            menu_text = self.get_font(100).render(
-                "Pause Menu", True, (64, 192, 225))
+            menu_text = self.get_font(100).render("Pause Menu", True, (64, 192, 225))
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
             screen.blit(menu_text, menu_rect)
 
@@ -334,12 +374,13 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         running = self.pause_menu()
 
+        self.update_leader_board()
         # Display game over
         game_over = True
         start_time = pygame.time.get_ticks() / 1000
         while game_over:
             screen.fill((0, 0, 0))
-            if pygame.time.get_ticks() / 1000 - start_time >= 1.5:
+            if pygame.time.get_ticks() / 1000 - start_time >= 5:
                 game_over = False
             game_over_text = self.get_font(200).render(
                 "GAME OVER!", False, (192, 64, 64)
@@ -347,11 +388,24 @@ class Game:
             game_over_rect = game_over_text.get_rect(
                 center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
             )
+            lb_update_text = self.get_font(35).render(
+                f"Your score has been updated, check the leader board and see if you're on it!",
+                False,
+                (196, 252, 192),
+            )
+            lb_update_rect = lb_update_text.get_rect(
+                center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100)
+            )
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        game_over = False
+
             screen.blit(game_over_text, game_over_rect)
+            screen.blit(lb_update_text, lb_update_rect)
             pygame.display.set_caption("Game over")
             pygame.display.update()
-
-        self.update_leader_board()
 
 
 def main_menu():
@@ -373,38 +427,37 @@ def main_menu():
     # Main menu loop
     while running:
         # Background
-        screen.fill((10, 10, 10))
+        screen.fill(BG_COLOR)
 
         # Mouse position
         menu_mouse_pos = pygame.mouse.get_pos()
 
         # Title
-        menu_text = game.get_font(150).render(
-            "GALAXY KNIGHT", True, (64, 192, 225))
-        menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
-        screen.blit(menu_text, menu_rect)
+        title_text = game.get_font(150).render("GALAXY KNIGHT", False, TITLE_COLOR)
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
+        screen.blit(title_text, title_rect)
 
         # Button setup
         play_button = Button(
             pos=(SCREEN_WIDTH / 2, 325),
             text_input="NEW GAME",
             font=game.get_font(100),
-            base_color=(196, 252, 192),
-            hovering_color="white",
+            base_color=SUB_COLOR,
+            hovering_color=TEXT_COLOR,
         )
         leader_board_button = Button(
             pos=(SCREEN_WIDTH / 2, 450),
             text_input="LEADER BOARD",
             font=game.get_font(100),
-            base_color=(196, 252, 192),
-            hovering_color="white",
+            base_color=SUB_COLOR,
+            hovering_color=TEXT_COLOR,
         )
         quit_button = Button(
             pos=(SCREEN_WIDTH / 2, 575),
             text_input="QUIT",
             font=game.get_font(100),
-            base_color=(196, 252, 192),
-            hovering_color="white",
+            base_color=SUB_COLOR,
+            hovering_color=TEXT_COLOR,
         )
 
         # Display button
@@ -422,6 +475,8 @@ def main_menu():
                     game.play()
                     # Previous game finished
                     new_game = True
+                if leader_board_button.check_input(menu_mouse_pos):
+                    game.display_leader_board()
                 if quit_button.check_input(menu_mouse_pos):
                     game.quit_game()
 
@@ -436,11 +491,20 @@ def main_menu():
 
 if __name__ == "__main__":
     pygame.init()
+    # Window setup
     SCREEN_HEIGHT = 720
     SCREEN_WIDTH = 1080
+
+    # Game setup
     PLAYER_SPEED = 10
     PLAYER_SIZE = (60, 60)
     TARGET_FPS = 45
+
+    # Colors
+    TITLE_COLOR = (64, 192, 225)
+    SUB_COLOR = (196, 252, 192)
+    TEXT_COLOR = (255, 255, 255)
+    BG_COLOR = (10, 10, 10)
     # Read leaderboard
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
