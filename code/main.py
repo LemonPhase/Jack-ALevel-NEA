@@ -34,12 +34,11 @@ class Game:
             print("Error: no capture")
 
         # Play time record
-        self.start_time = pygame.time.get_ticks() / 1000
         self.play_time = 0
 
         # FPS
         self.clock = pygame.time.Clock()
-        self.previous_time = 0
+        self.previous_time = pygame.time.get_ticks() / 1000
         self.current_time = 0
 
         # Player setup
@@ -102,21 +101,6 @@ class Game:
                 self.file.write(",".join(line) + "\n")
         self.file.close()
 
-    def calculate_fps(self, img):
-        self.current_time = pygame.time.get_ticks() / 1000
-        fps = 1 / (self.current_time - self.previous_time)
-        self.previous_time = self.current_time
-        cv2.putText(
-            img,
-            str(int(fps)),
-            (10, 70),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            3,
-            (255, 0, 255),
-            3,
-        )
-        cv2.imshow("Image", img)
-
     def calculate_cd(self, time):
         # the respawn cd decreases as time passes, minimum cd 0.5s
         return math.exp(-1 * (1 / 50 * time - 1)) + 1 / 2
@@ -125,9 +109,11 @@ class Game:
         if type == "Ax":
             alien_sprite = Ax(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Eldredth":
-            alien_sprite = Eldredth(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Eldredth(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         elif type == "Dash":
-            alien_sprite = Dash(SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
+            alien_sprite = Dash(
+                SCREEN_WIDTH, SCREEN_HEIGHT, self.player_sprite)
         self.aliens.add(alien_sprite)
 
     def game_progress(self):
@@ -144,7 +130,8 @@ class Game:
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
 
-                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
+                alien_hit = pygame.sprite.spritecollide(
+                    laser, self.aliens, True)
                 if alien_hit:
                     self.explosion_sound.play()
                     for alien in alien_hit:
@@ -167,17 +154,18 @@ class Game:
         for live in range(self.lives):
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
             screen.blit(
-                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
+                self.live_surf, (x, SCREEN_HEIGHT -
+                                 self.live_surf.get_size()[1] - 5)
             )
 
     def display_score(self):
-        score_surf = self.get_font(50).render(f"Score: {self.score}", False, "white")
+        score_surf = self.get_font(50).render(
+            f"Score: {self.score}", False, "white")
         score_rect = score_surf.get_rect(topleft=(15, 10))
         screen.blit(score_surf, score_rect)
 
     def display_time(self):
-        self.play_time = (pygame.time.get_ticks() / 1000) - self.start_time
-        # print(self.play_time)
+        self.play_time += self.current_time - self.previous_time
         time_surf = self.get_font(50).render(
             str(
                 round(
@@ -193,12 +181,13 @@ class Game:
 
     def quit_game(self):
         # Save the leader board
-        new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
-        if len(new_leader_board) < 5:
-            for line in new_leader_board:
+        save_leader_board = [[str(i) for i in lst]
+                             for lst in self.leader_board]
+        if len(save_leader_board) < 5:
+            for line in save_leader_board:
                 self.file.write(", ".join(line) + "\n")
         else:
-            for line in new_leader_board[:4]:
+            for line in save_leader_board[:4]:
                 self.file.write(", ".join(line) + "\n")
         self.file.close()
 
@@ -207,24 +196,22 @@ class Game:
         sys.exit()
 
     def pause_menu(self):
-        # Pause play time
-
-        self.play_time += pygame.time.get_ticks() / 1000 - self.start_time
-
         pygame.display.set_caption("Game paused")
         running = True
 
         # Pause menu loop
         while running:
-            # Pause the timer
-            self.start_time = pygame.time.get_ticks() / 1000
+            self.current_time = pygame.time.get_ticks() / 1000
+            self.previous_time = self.current_time
+
             screen.fill((10, 10, 10))
 
             # Mouse position
             menu_mouse_pos = pygame.mouse.get_pos()
 
             # Menu title
-            menu_text = self.get_font(100).render("Pause Menu", True, (64, 192, 225))
+            menu_text = self.get_font(100).render(
+                "Pause Menu", True, (64, 192, 225))
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
             screen.blit(menu_text, menu_rect)
 
@@ -292,11 +279,23 @@ class Game:
 
         self.display_lives()
         self.display_score()
+        self.current_time = pygame.time.get_ticks() / 1000
+        fps = 1 / (self.current_time - self.previous_time)
         self.display_time()
+        self.previous_time = self.current_time
 
-        # Calculate FPS
+        # Show FPS
         if self.has_capture:
-            self.calculate_fps(img)
+            cv2.putText(
+                img,
+                str(int(fps)),
+                (10, 70),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                3,
+                (255, 0, 255),
+                3,
+            )
+            cv2.imshow("Image", img)
 
         # Game over
         if self.lives <= 0:
@@ -314,7 +313,6 @@ class Game:
         # Gameplay loop
         while running:
             pygame.display.set_caption("PIU PIU PIU!!!")
-            self.play_time += pygame.time.get_ticks() / 1000 - self.start_time
             # Background scrolling
             screen.fill((0, 0, 0))
             screen.blit(bg_img, (0, i))
@@ -381,7 +379,8 @@ def main_menu():
         menu_mouse_pos = pygame.mouse.get_pos()
 
         # Title
-        menu_text = game.get_font(150).render("GALAXY KNIGHT", True, (64, 192, 225))
+        menu_text = game.get_font(150).render(
+            "GALAXY KNIGHT", True, (64, 192, 225))
         menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
         screen.blit(menu_text, menu_rect)
 
