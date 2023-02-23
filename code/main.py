@@ -98,7 +98,7 @@ class Game:
         # Sort by the first index, reverse order
         self.leader_board.sort(key=lambda x: x[0], reverse=True)
         new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
-        print(new_leader_board)
+        # print(new_leader_board)
         for line in new_leader_board[:5]:
             self.file.write(", ".join(line) + "\n")
         self.file.close()
