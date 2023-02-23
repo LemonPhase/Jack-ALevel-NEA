@@ -36,8 +36,7 @@ class HandDetector:
         if self.results.multi_hand_landmarks:
             for handLms in self.results.multi_hand_landmarks:
                 if draw:
-                    self.mpDraw.draw_landmarks(
-                        img, handLms, mpHands.HAND_CONNECTIONS)
+                    self.mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
         return img
 
     def FindPosition(self, img, handNo=0, draw=True):
@@ -109,15 +108,10 @@ def main():
         previous_time = current_time
 
         cv2.putText(
-            img, str(int(fps)), (10,
-                                 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
+            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
         )
 
         cv2.imshow("Image", img)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
-
-
-if __name__ == "__main__":
-    main()

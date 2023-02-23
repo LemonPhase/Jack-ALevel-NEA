@@ -16,6 +16,14 @@ os.chdir(os.path.dirname(__file__))
 
 class Game:
     def __init__(self) -> None:
+        # Leader board
+        self.file = open("LeaderBoard.txt", "r+")
+        self.lb_list = self.file.read().splitlines()
+        self.get_leader_board()
+        self.file.close()
+
+        self.file = open("LeaderBoard.txt", "w")
+
         # Camera setup
         try:
             self.capture = cv2.VideoCapture(0)
@@ -26,7 +34,7 @@ class Game:
             print("Error: no capture")
 
         # Play time record
-        self.start_time = pygame.time.get_ticks()
+        self.start_time = pygame.time.get_ticks() / 1000
         self.play_time = 0
 
         # FPS
@@ -74,6 +82,26 @@ class Game:
         # Returns font in the desired size
         return pygame.font.Font("..\Font\Brandford.otf", size)
 
+    def get_leader_board(self):
+        self.leader_board = []
+
+        for leader in self.lb_list:
+            lst = leader.split(",")
+            self.leader_board.append([int(lst[i]) for i in range(2)])
+
+    def update_leader_board(self):
+        self.leader_board.append([self.score, int(round(self.play_time, 0))])
+        self.leader_board.sort(key=lambda x: x[0], reverse=True)
+        new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
+        print(new_leader_board)
+        if len(new_leader_board) < 5:
+            for line in new_leader_board:
+                self.file.write(",".join(line) + "\n")
+        else:
+            for line in new_leader_board[:4]:
+                self.file.write(",".join(line) + "\n")
+        self.file.close()
+
     def calculate_fps(self, img):
         self.current_time = pygame.time.get_ticks() / 1000
         fps = 1 / (self.current_time - self.previous_time)
@@ -91,7 +119,7 @@ class Game:
 
     def calculate_cd(self, time):
         # the respawn cd decreases as time passes, minimum cd 0.5s
-        return math.exp(-1 * (1 / 30 * time - 1)) + 1 / 2
+        return math.exp(-1 * (1 / 50 * time - 1)) + 1 / 2
 
     def alien_spawn(self, type):
         if type == "Ax":
@@ -148,10 +176,12 @@ class Game:
         screen.blit(score_surf, score_rect)
 
     def display_time(self):
+        self.play_time = (pygame.time.get_ticks() / 1000) - self.start_time
+        # print(self.play_time)
         time_surf = self.get_font(50).render(
             str(
                 round(
-                    (self.play_time + pygame.time.get_ticks() - self.start_time) / 1000,
+                    self.play_time,
                     1,
                 )
             ),
@@ -162,6 +192,16 @@ class Game:
         screen.blit(time_surf, time_rect)
 
     def quit_game(self):
+        # Save the leader board
+        new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
+        if len(new_leader_board) < 5:
+            for line in new_leader_board:
+                self.file.write(", ".join(line) + "\n")
+        else:
+            for line in new_leader_board[:4]:
+                self.file.write(", ".join(line) + "\n")
+        self.file.close()
+
         print("Game quit")
         pygame.quit()
         sys.exit()
@@ -169,7 +209,7 @@ class Game:
     def pause_menu(self):
         # Pause play time
 
-        self.play_time += pygame.time.get_ticks() - self.start_time
+        self.play_time += pygame.time.get_ticks() / 1000 - self.start_time
 
         pygame.display.set_caption("Game paused")
         running = True
@@ -177,7 +217,7 @@ class Game:
         # Pause menu loop
         while running:
             # Pause the timer
-            self.start_time = pygame.time.get_ticks()
+            self.start_time = pygame.time.get_ticks() / 1000
             screen.fill((10, 10, 10))
 
             # Mouse position
@@ -274,7 +314,7 @@ class Game:
         # Gameplay loop
         while running:
             pygame.display.set_caption("PIU PIU PIU!!!")
-
+            self.play_time += pygame.time.get_ticks() / 1000 - self.start_time
             # Background scrolling
             screen.fill((0, 0, 0))
             screen.blit(bg_img, (0, i))
@@ -298,10 +338,10 @@ class Game:
 
         # Display game over
         game_over = True
-        start_time = pygame.time.get_ticks()
+        start_time = pygame.time.get_ticks() / 1000
         while game_over:
             screen.fill((0, 0, 0))
-            if pygame.time.get_ticks() - start_time >= 3000:
+            if pygame.time.get_ticks() / 1000 - start_time >= 1.5:
                 game_over = False
             game_over_text = self.get_font(200).render(
                 "GAME OVER!", False, (192, 64, 64)
@@ -312,6 +352,8 @@ class Game:
             screen.blit(game_over_text, game_over_rect)
             pygame.display.set_caption("Game over")
             pygame.display.update()
+
+        self.update_leader_board()
 
 
 def main_menu():
@@ -340,7 +382,6 @@ def main_menu():
 
         # Title
         menu_text = game.get_font(150).render("GALAXY KNIGHT", True, (64, 192, 225))
-
         menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
         screen.blit(menu_text, menu_rect)
 
@@ -401,5 +442,8 @@ if __name__ == "__main__":
     PLAYER_SPEED = 10
     PLAYER_SIZE = (60, 60)
     TARGET_FPS = 45
+    # Read leaderboard
+
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
     main_menu()
