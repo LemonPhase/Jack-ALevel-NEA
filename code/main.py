@@ -14,9 +14,17 @@ from button import Button
 os.chdir(os.path.dirname(__file__))
 
 
+# Game class that contains all the elements in the gameplay
 class Game:
     def __init__(self) -> None:
         # Leader board
+        try:
+            self.file = open("LeaderBoard.txt", "r+")
+        except:
+            # Create a leaderboard file
+            self.file = open("LeaderBoard.txt", "w")
+            self.file.close()
+
         self.file = open("LeaderBoard.txt", "r+")
         self.lb_list = self.file.read().splitlines()
         self.get_leader_board()
@@ -87,18 +95,19 @@ class Game:
         # Parsing the txt file
         for leader in self.lb_list:
             lst = leader.split(", ")
+            # 2d array
             self.leader_board.append([int(lst[i]) for i in range(2)])
-        
+
         if len(self.leader_board) < 5:
             for i in range(5 - len(self.leader_board)):
-                self.leader_board.append([0,0])
+                self.leader_board.append([0, 0])
 
     def update_leader_board(self):
         self.leader_board.append([self.score, int(round(self.play_time, 0))])
         # Sort by the first index, reverse order
         self.leader_board.sort(key=lambda x: x[0], reverse=True)
+        # List comprehension
         new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
-        # print(new_leader_board)
         for line in new_leader_board[:5]:
             self.file.write(", ".join(line) + "\n")
         self.file.close()
@@ -107,14 +116,9 @@ class Game:
         self.get_leader_board()
         running = True
         display_lb = self.leader_board
-        # if len(display_lb) < 5:
-        #     for i in range(5 - len(display_lb)):
-        #         display_lb.append([0,0])
-
 
         while running:
             screen.fill(BG_COLOR)
-
 
             title_text = self.get_font(150).render("LEADERBOARD", False, TITLE_COLOR)
             sub_title_text = self.get_font(75).render("SCORE        TIME", False, SUB_COLOR)
@@ -123,20 +127,30 @@ class Game:
             sub_title_rect = sub_title_text.get_rect(center=(SCREEN_WIDTH / 2, 275))
 
             font_size = 50
-            first_text = self.get_font(font_size).render(f"1st: {display_lb[0][0]}              {display_lb[0][1]}", False, TEXT_COLOR)
-            second_text = self.get_font(font_size).render(f"2nd: {display_lb[1][0]}             {display_lb[1][1]}", False, TEXT_COLOR)
-            third_text = self.get_font(font_size).render(f"3rd: {display_lb[2][0]}              {display_lb[2][1]}", False, TEXT_COLOR)
-            forth_text = self.get_font(font_size).render(f"4th: {display_lb[3][0]}              {display_lb[3][1]}", False, TEXT_COLOR)
-            fifth_text = self.get_font(font_size).render(f"5th: {display_lb[4][0]}              {display_lb[4][1]}", False, TEXT_COLOR)
+            first_text = self.get_font(font_size).render(
+                f"1st: {display_lb[0][0]}              {display_lb[0][1]}", False, TEXT_COLOR
+            )
+            second_text = self.get_font(font_size).render(
+                f"2nd: {display_lb[1][0]}             {display_lb[1][1]}", False, TEXT_COLOR
+            )
+            third_text = self.get_font(font_size).render(
+                f"3rd: {display_lb[2][0]}              {display_lb[2][1]}", False, TEXT_COLOR
+            )
+            forth_text = self.get_font(font_size).render(
+                f"4th: {display_lb[3][0]}              {display_lb[3][1]}", False, TEXT_COLOR
+            )
+            fifth_text = self.get_font(font_size).render(
+                f"5th: {display_lb[4][0]}              {display_lb[4][1]}", False, TEXT_COLOR
+            )
 
-            xpos = SCREEN_WIDTH/2 - 25
+            xpos = SCREEN_WIDTH / 2 - 25
             start_ypos = 350
             gap = 75
             first_rect = first_text.get_rect(center=(xpos, start_ypos))
             second_rect = second_text.get_rect(center=(xpos, start_ypos + gap))
-            third_rect = third_text.get_rect(center=(xpos, start_ypos + gap*2))
-            forth_rect = forth_text.get_rect(center=(xpos, start_ypos + gap*3))
-            fifth_rect = fifth_text.get_rect(center=(xpos, start_ypos + gap*4))
+            third_rect = third_text.get_rect(center=(xpos, start_ypos + gap * 2))
+            forth_rect = forth_text.get_rect(center=(xpos, start_ypos + gap * 3))
+            fifth_rect = fifth_text.get_rect(center=(xpos, start_ypos + gap * 4))
 
             screen.blit(title_text, title_rect)
             screen.blit(sub_title_text, sub_title_rect)
@@ -204,9 +218,7 @@ class Game:
     def display_lives(self):
         for live in range(self.lives):
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
-            screen.blit(
-                self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5)
-            )
+            screen.blit(self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5))
 
     def display_score(self):
         score_surf = self.get_font(50).render(f"Score: {self.score}", False, "white")
@@ -215,9 +227,7 @@ class Game:
 
     def display_time(self):
         self.play_time += self.current_time - self.previous_time
-        time_surf = self.get_font(50).render(
-            str(round(self.play_time, 1)), False, "white"
-        )
+        time_surf = self.get_font(50).render(str(round(self.play_time, 1)), False, "white")
         time_rect = time_surf.get_rect(topright=(SCREEN_WIDTH - 15, 10))
         screen.blit(time_surf, time_rect)
 
@@ -382,20 +392,14 @@ class Game:
             screen.fill((0, 0, 0))
             if pygame.time.get_ticks() / 1000 - start_time >= 5:
                 game_over = False
-            game_over_text = self.get_font(200).render(
-                "GAME OVER!", False, (192, 64, 64)
-            )
-            game_over_rect = game_over_text.get_rect(
-                center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-            )
+            game_over_text = self.get_font(200).render("GAME OVER!", False, (192, 64, 64))
+            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
             lb_update_text = self.get_font(35).render(
                 f"Your score has been updated, check the leader board and see if you're on it!",
                 False,
                 (196, 252, 192),
             )
-            lb_update_rect = lb_update_text.get_rect(
-                center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100)
-            )
+            lb_update_rect = lb_update_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100))
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
