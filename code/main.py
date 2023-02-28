@@ -128,19 +128,29 @@ class Game:
 
             font_size = 50
             first_text = self.get_font(font_size).render(
-                f"1st: {display_lb[0][0]}              {display_lb[0][1]}", False, TEXT_COLOR
+                f"1st: {display_lb[0][0]}              {display_lb[0][1]}",
+                False,
+                TEXT_COLOR,
             )
             second_text = self.get_font(font_size).render(
-                f"2nd: {display_lb[1][0]}             {display_lb[1][1]}", False, TEXT_COLOR
+                f"2nd: {display_lb[1][0]}             {display_lb[1][1]}",
+                False,
+                TEXT_COLOR,
             )
             third_text = self.get_font(font_size).render(
-                f"3rd: {display_lb[2][0]}              {display_lb[2][1]}", False, TEXT_COLOR
+                f"3rd: {display_lb[2][0]}              {display_lb[2][1]}",
+                False,
+                TEXT_COLOR,
             )
             forth_text = self.get_font(font_size).render(
-                f"4th: {display_lb[3][0]}              {display_lb[3][1]}", False, TEXT_COLOR
+                f"4th: {display_lb[3][0]}              {display_lb[3][1]}",
+                False,
+                TEXT_COLOR,
             )
             fifth_text = self.get_font(font_size).render(
-                f"5th: {display_lb[4][0]}              {display_lb[4][1]}", False, TEXT_COLOR
+                f"5th: {display_lb[4][0]}              {display_lb[4][1]}",
+                False,
+                TEXT_COLOR,
             )
 
             xpos = SCREEN_WIDTH / 2 - 25
@@ -252,13 +262,60 @@ class Game:
 
         while running:
             screen.fill((10, 10, 10))
-            title_text = self.get_font(100).render("Instructions", True, TITLE_COLOR)
-            keyboard_text = self.get_font(75).render("Keyboard", True, SUB_COLOR)
-            camera_text = self.get_font(75).render("Camera", True, SUB_COLOR)
+            title_text = self.get_font(100).render("Instructions", ANTI_ALIASING, TITLE_COLOR)
+            keyboard_text = self.get_font(75).render("Keyboard", ANTI_ALIASING, SUB_COLOR)
+            camera_text = self.get_font(75).render("Camera", ANTI_ALIASING, SUB_COLOR)
+            ecp_text = self.get_font(30).render("Escape to exit", ANTI_ALIASING, TEXT_COLOR)
 
-            title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
+            kb_line1 = self.get_font(50).render("WASD to move", ANTI_ALIASING, TEXT_COLOR)
+            kb_line2 = self.get_font(50).render("SPACE to shoot", ANTI_ALIASING, TEXT_COLOR)
+
+            cam_line1 = self.get_font(50).render("Make sure camera is on", ANTI_ALIASING, TEXT_COLOR)
+            cam_line2 = self.get_font(50).render("and your hand is in the capture", ANTI_ALIASING, TEXT_COLOR)
+            cam_line3 = self.get_font(50).render("Gun gesture to shoot", ANTI_ALIASING, TEXT_COLOR)
+            cam_line4 = self.get_font(50).render("Fist to enter turrent mode", ANTI_ALIASING, TEXT_COLOR)
+
+            gun_image = pygame.image.load("..\Graphics\GunGesture.png")
+            gun_image = pygame.transform.scale(gun_image, (60, 60))
+            fist_image = pygame.image.load("..\Graphics\FistGesture.png")
+            fist_image = pygame.transform.scale(fist_image, (60, 60))
+
+            kb_x_center = SCREEN_WIDTH / 2 - 250
+            cam_x_center = SCREEN_WIDTH / 2 + 225
+
+            title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 100))
+            keyboard_rect = keyboard_text.get_rect(center=(kb_x_center, 225))
+            camera_rect = camera_text.get_rect(center=(cam_x_center, 225))
+            ecp_rect = ecp_text.get_rect(center=(SCREEN_WIDTH / 2, 670))
+
+            kb_y_start = 350
+            kb_y_gap = 100
+            kb_line1_rect = kb_line1.get_rect(center=(kb_x_center, kb_y_start))
+            kb_line2_rect = kb_line2.get_rect(center=(kb_x_center, kb_y_start + kb_y_gap))
+
+            cam_y_start = 300
+            cam_y_gap = 75
+            cam_line1_rect = cam_line1.get_rect(center=(cam_x_center, cam_y_start))
+            cam_line2_rect = cam_line2.get_rect(center=(cam_x_center, cam_y_start + cam_y_gap))
+            cam_line3_rect = cam_line3.get_rect(center=(cam_x_center, cam_y_start + 2 * cam_y_gap))
+            cam_line4_rect = cam_line4.get_rect(center=(cam_x_center, cam_y_start + 3 * cam_y_gap))
+
+            gun_rect = gun_image.get_rect(center=(cam_x_center - 200, cam_y_start + 2 * cam_y_gap))
+            fist_rect = fist_image.get_rect(center=(cam_x_center - 250, cam_y_start + 3 * cam_y_gap))
 
             screen.blit(title_text, title_rect)
+            screen.blit(keyboard_text, keyboard_rect)
+            screen.blit(camera_text, camera_rect)
+            screen.blit(ecp_text, ecp_rect)
+
+            screen.blit(kb_line1, kb_line1_rect)
+            screen.blit(kb_line2, kb_line2_rect)
+            screen.blit(cam_line1, cam_line1_rect)
+            screen.blit(cam_line2, cam_line2_rect)
+            screen.blit(cam_line3, cam_line3_rect)
+            screen.blit(cam_line4, cam_line4_rect)
+            screen.blit(gun_image, gun_rect)
+            screen.blit(fist_image, fist_rect)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -320,7 +377,12 @@ class Game:
             )
 
             # Display button
-            for button in [continue_button, main_menu_button, instruction_button, quit_button]:
+            for button in [
+                continue_button,
+                main_menu_button,
+                instruction_button,
+                quit_button,
+            ]:
                 button.change_color(menu_mouse_pos)
                 button.update(screen)
 
@@ -436,7 +498,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                         game_over = False
 
             screen.blit(game_over_text, game_over_rect)
@@ -476,21 +538,28 @@ def main_menu():
 
         # Button setup
         play_button = Button(
-            pos=(SCREEN_WIDTH / 2, 325),
+            pos=(SCREEN_WIDTH / 2, 300),
             text_input="NEW GAME",
             font=game.get_font(100),
             base_color=SUB_COLOR,
             hovering_color=TEXT_COLOR,
         )
         leader_board_button = Button(
-            pos=(SCREEN_WIDTH / 2, 450),
+            pos=(SCREEN_WIDTH / 2, 400),
             text_input="LEADER BOARD",
             font=game.get_font(100),
             base_color=SUB_COLOR,
             hovering_color=TEXT_COLOR,
         )
+        instruction_button = Button(
+            pos=(SCREEN_WIDTH / 2, 500),
+            text_input="INSTRUCTIONS",
+            font=game.get_font(100),
+            base_color=SUB_COLOR,
+            hovering_color=TEXT_COLOR,
+        )
         quit_button = Button(
-            pos=(SCREEN_WIDTH / 2, 575),
+            pos=(SCREEN_WIDTH / 2, 600),
             text_input="QUIT",
             font=game.get_font(100),
             base_color=SUB_COLOR,
@@ -498,7 +567,7 @@ def main_menu():
         )
 
         # Display button
-        for button in [play_button, leader_board_button, quit_button]:
+        for button in [play_button, leader_board_button, instruction_button, quit_button]:
             button.change_color(menu_mouse_pos)
             button.update(screen)
 
@@ -514,6 +583,8 @@ def main_menu():
                     new_game = True
                 if leader_board_button.check_input(menu_mouse_pos):
                     game.display_leader_board()
+                if instruction_button.check_input(menu_mouse_pos):
+                    game.instructions()
                 if quit_button.check_input(menu_mouse_pos):
                     game.quit_game()
 
@@ -536,6 +607,8 @@ if __name__ == "__main__":
     PLAYER_SPEED = 10
     PLAYER_SIZE = (60, 60)
     TARGET_FPS = 45
+
+    ANTI_ALIASING = False
 
     # Colors
     TITLE_COLOR = (64, 192, 225)
