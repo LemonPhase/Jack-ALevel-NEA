@@ -246,6 +246,30 @@ class Game:
         pygame.quit()
         sys.exit()
 
+    def instructions(self):
+        pygame.display.set_caption("Instructions")
+        running = True
+
+        while running:
+            screen.fill((10, 10, 10))
+            title_text = self.get_font(100).render("Instructions", True, TITLE_COLOR)
+            keyboard_text = self.get_font(75).render("Keyboard", True, SUB_COLOR)
+            camera_text = self.get_font(75).render("Camera", True, SUB_COLOR)
+
+            title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
+
+            screen.blit(title_text, title_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    self.quit_game()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+
+            pygame.display.update()
+
     def pause_menu(self):
         pygame.display.set_caption("Game paused")
         running = True
@@ -261,35 +285,42 @@ class Game:
             menu_mouse_pos = pygame.mouse.get_pos()
 
             # Menu title
-            menu_text = self.get_font(100).render("Pause Menu", True, (64, 192, 225))
+            menu_text = self.get_font(100).render("Pause Menu", True, TITLE_COLOR)
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
             screen.blit(menu_text, menu_rect)
 
             # Button setup
             continue_button = Button(
-                pos=(SCREEN_WIDTH / 2, 325),
+                pos=(SCREEN_WIDTH / 2, 300),
                 text_input="CONTINUE",
                 font=self.get_font(75),
-                base_color=(196, 252, 192),
-                hovering_color="white",
+                base_color=SUB_COLOR,
+                hovering_color=TEXT_COLOR,
             )
             main_menu_button = Button(
-                pos=(SCREEN_WIDTH / 2, 450),
+                pos=(SCREEN_WIDTH / 2, 400),
                 text_input="MAIN MENU",
                 font=self.get_font(75),
-                base_color=(196, 252, 192),
-                hovering_color="white",
+                base_color=SUB_COLOR,
+                hovering_color=TEXT_COLOR,
+            )
+            instruction_button = Button(
+                pos=(SCREEN_WIDTH / 2, 500),
+                text_input="INSTRUCTIONS",
+                font=self.get_font(75),
+                base_color=SUB_COLOR,
+                hovering_color=TEXT_COLOR,
             )
             quit_button = Button(
-                pos=(SCREEN_WIDTH / 2, 575),
+                pos=(SCREEN_WIDTH / 2, 600),
                 text_input="QUIT",
                 font=self.get_font(75),
-                base_color=(196, 252, 192),
-                hovering_color="white",
+                base_color=SUB_COLOR,
+                hovering_color=TEXT_COLOR,
             )
 
             # Display button
-            for button in [continue_button, main_menu_button, quit_button]:
+            for button in [continue_button, main_menu_button, instruction_button, quit_button]:
                 button.change_color(menu_mouse_pos)
                 button.update(screen)
 
@@ -303,6 +334,8 @@ class Game:
                         return True
                     if main_menu_button.check_input(menu_mouse_pos):
                         return False
+                    if instruction_button.check_input(menu_mouse_pos):
+                        self.instructions()
                     if quit_button.check_input(menu_mouse_pos):
                         self.quit_game()
 
