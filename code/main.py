@@ -342,7 +342,7 @@ class Game:
             menu_mouse_pos = pygame.mouse.get_pos()
 
             # Menu title
-            menu_text = self.get_font(100).render("Pause Menu", True, TITLE_COLOR)
+            menu_text = self.get_font(100).render("Pause Menu", ANTI_ALIASING, TITLE_COLOR)
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
             screen.blit(menu_text, menu_rect)
 
@@ -487,11 +487,11 @@ class Game:
             screen.fill((0, 0, 0))
             if pygame.time.get_ticks() / 1000 - start_time >= 5:
                 game_over = False
-            game_over_text = self.get_font(200).render("GAME OVER!", False, (192, 64, 64))
+            game_over_text = self.get_font(200).render("GAME OVER!", ANTI_ALIASING, (192, 64, 64))
             game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
             lb_update_text = self.get_font(35).render(
                 f"Your score has been updated, check the leader board and see if you're on it!",
-                False,
+                ANTI_ALIASING,
                 (196, 252, 192),
             )
             lb_update_rect = lb_update_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100))
@@ -532,7 +532,7 @@ def main_menu():
         menu_mouse_pos = pygame.mouse.get_pos()
 
         # Title
-        title_text = game.get_font(150).render("GALAXY KNIGHT", False, TITLE_COLOR)
+        title_text = game.get_font(150).render("GALAXY KNIGHT", ANTI_ALIASING, TITLE_COLOR)
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, 150))
         screen.blit(title_text, title_rect)
 
@@ -606,7 +606,7 @@ if __name__ == "__main__":
     # Game setup
     PLAYER_SPEED = 10
     PLAYER_SIZE = (60, 60)
-    TARGET_FPS = 45
+    TARGET_FPS = 60
 
     ANTI_ALIASING = False
 
