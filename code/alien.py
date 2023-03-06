@@ -27,13 +27,17 @@ class Alien(pygame.sprite.Sprite):
         current_time = pygame.time.get_ticks()
         if self.moving and current_time - self.move_time < self.move_cooldown:
             self.rect.x += self.speed
+
+            # Hits one of the boundaries and bounces back
             if self.rect.left <= 0 or self.rect.right >= self.x_max:
                 self.moving = False
 
         else:
             self.moving = True
             self.move_time = current_time
+            # Move for a random duration from 0s to 4s
             self.move_cooldown = random.randint(0, 4000)
+            # Changes direction
             self.speed = self.speed * -1
 
     def attack(self):
@@ -46,6 +50,7 @@ class Alien(pygame.sprite.Sprite):
                 self.ready = True
 
     def constraint(self):
+        # Prevent alien from going out of bounds of the display window
         if self.rect.left <= 0:
             self.rect.left = 0
         if self.rect.right >= self.x_max:
@@ -61,6 +66,9 @@ class Alien(pygame.sprite.Sprite):
         self.recharge()
         self.lasers.update()
         self.constraint()
+
+
+# Inheritences
 
 
 # Ax alien class
@@ -122,12 +130,15 @@ class Dash(Alien):
         pass
 
     def attack(self):
+        # Constant that determines how much player position change impact it's movement
         k = 0.5
         # Complex maths
         self.current_player = self.player_sprite.rect.center
+        # The differences between the coordinate values between Dash and the player in this current tick
         dx = self.current_player[0] - self.rect.center[0]
         dy = self.current_player[1] - self.rect.center[1]
-        # print(dx, dy)
+
+        # The change in player's spacecraft's location in the last tick
         vx = self.current_player[0] - self.previous_player[0]
         vy = self.current_player[1] - self.previous_player[1]
         self.previous_player = self.current_player

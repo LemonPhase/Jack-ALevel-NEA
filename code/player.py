@@ -8,9 +8,7 @@ from laser import Laser
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, x_max, y_max, speed, size):
         super().__init__()
-        self.image = pygame.image.load(
-            "..\Graphics\Player.png"
-        ).convert_alpha()  # Spacecraft Icon
+        self.image = pygame.image.load("..\Graphics\Player.png").convert_alpha()  # Spacecraft Icon
         self.image = pygame.transform.scale(self.image, size)
         self.rect = self.image.get_rect(midbottom=pos)
         self.speed = speed
@@ -92,10 +90,13 @@ class Player(pygame.sprite.Sprite):
     def recharge(self):
         if not self.ready:
             current_time = pygame.time.get_ticks()
+            # If time passed since last laser shot is greater than cooldown
             if current_time - self.laser_time >= self.laser_cooldown:
+                # Ready to shoot
                 self.ready = True
 
     def constraint(self):
+        # Prevent space ship from going out of bounds of the display window
         if self.rect.left <= 0:
             self.rect.left = 0
         if self.rect.right >= self.x_max:

@@ -73,7 +73,6 @@ class Game:
         self.spawn_cooldown = 0
 
         # Audio setup
-
         self.explosion_sound = pygame.mixer.Sound("..\Audio\Explosion.wav")
         self.explosion_sound.set_volume(0.15)
 
@@ -104,10 +103,14 @@ class Game:
 
     def update_leader_board(self):
         self.leader_board.append([self.score, int(round(self.play_time, 0))])
-        # Sort by the first index, reverse order
+
+        # Sort by index 1, reverse order
         # More efficient than writing my own sorting algorithm
         self.leader_board.sort(key=lambda x: x[0], reverse=True)
-        # List comprehension
+
+        # List comprehension with 2d array
+        # Change all elements into string type so it could be stored in the txt file
+
         new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
         for line in new_leader_board[:5]:
             self.file.write(", ".join(line) + "\n")
@@ -182,6 +185,7 @@ class Game:
             pygame.display.update()
 
     def calculate_cd(self, time):
+        # exponential function
         # the respawn cd decreases as time passes, minimum cd 0.5s
         return math.exp(-1 * (1 / 50 * time - 1)) + 1 / 2
 
@@ -195,10 +199,17 @@ class Game:
         self.aliens.add(alien_sprite)
 
     def game_progress(self):
+        # Get current time in seconds since the game started
         time = pygame.time.get_ticks() / 1000  # in seconds
+
+        # If time since last alien spawn is greater or equal to the spawn cooldown
         if (time - self.last_spawn) >= self.spawn_cooldown:
+            # Spawns a random alien
             self.alien_spawn(random.choice(self.aliens_types))
+
+            # Resets spawn time
             self.last_spawn = time
+            # Recaculates the spawn cooldown
             self.spawn_cooldown = self.calculate_cd(time)
         else:
             pass
@@ -228,6 +239,7 @@ class Game:
 
     def display_lives(self):
         for live in range(self.lives):
+            # Display from bottom right corner
             x = self.live_x_start_pos + (live * self.live_surf.get_size()[0])
             screen.blit(self.live_surf, (x, SCREEN_HEIGHT - self.live_surf.get_size()[1] - 5))
 
@@ -237,13 +249,14 @@ class Game:
         screen.blit(score_surf, score_rect)
 
     def display_time(self):
+        # Add the time passed between ticks to total play time of this game
         self.play_time += self.current_time - self.previous_time
         time_surf = self.get_font(50).render(str(round(self.play_time, 1)), False, "white")
         time_rect = time_surf.get_rect(topright=(SCREEN_WIDTH - 15, 10))
         screen.blit(time_surf, time_rect)
 
     def quit_game(self):
-        # Save the leader board
+        # Save the current leader board
         save_leader_board = [[str(i) for i in lst] for lst in self.leader_board]
         if len(save_leader_board) < 5:
             for line in save_leader_board:
@@ -253,11 +266,13 @@ class Game:
                 self.file.write(", ".join(line) + "\n")
         self.file.close()
 
+        # Quit game
         print("Game quit")
         pygame.quit()
         sys.exit()
 
     def instructions(self):
+        # Instruction page on how to play the game
         pygame.display.set_caption("Instructions")
         running = True
 
@@ -334,6 +349,8 @@ class Game:
 
         # Pause menu loop
         while running:
+            # Updates current time tick and previous time tick
+            # But not adding the time duration between ticks to total play time
             self.current_time = pygame.time.get_ticks() / 1000
             self.previous_time = self.current_time
 
@@ -410,21 +427,28 @@ class Game:
 
         img = self.cam_capture()
 
+        # Player update
         self.player.update(img, self.has_capture)
         self.player.sprite.lasers.draw(screen)
         self.player.draw(screen)
 
+        # Spawns alien if cooldown finished, and also calculates new cooldown
         self.game_progress()
 
+        # Alien update
         self.aliens.update()
         self.aliens.draw(screen)
         for alien in self.aliens.sprites():
             alien.lasers.draw(screen)
 
+        # Check for collision
         self.collision_check()
 
+        # Display information
         self.display_lives()
         self.display_score()
+
+        # Calculate fps and updates previous and current ticks
         self.current_time = pygame.time.get_ticks() / 1000
         fps = 1 / (self.current_time - self.previous_time)
         self.display_time()
@@ -459,6 +483,7 @@ class Game:
         # Gameplay loop
         while running:
             pygame.display.set_caption("PIU PIU PIU!!!")
+
             # Background scrolling
             screen.fill((0, 0, 0))
             screen.blit(bg_img, (0, i))
@@ -480,6 +505,7 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         running = self.pause_menu()
 
+        # Game finished
         self.update_leader_board()
         # Display game over
         game_over = True

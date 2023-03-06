@@ -11,10 +11,7 @@ mpDraw = mp.solutions.drawing_utils
 
 
 class HandDetector:
-    def __init__(
-        self, mode=False, maxHands=2, complexity=1, detectCon=0.5, trackCon=0.5
-    ):
-
+    def __init__(self, mode=False, maxHands=2, complexity=1, detectCon=0.5, trackCon=0.5):
         self.mode = mode
         self.maxHands = int(maxHands)
         self.complexity = complexity
@@ -22,9 +19,7 @@ class HandDetector:
         self.trackCon = float(trackCon)
 
         self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands(
-            self.mode, self.maxHands, self.complexity, self.detectCon, self.trackCon
-        )
+        self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.complexity, self.detectCon, self.trackCon)
 
         self.mpDraw = mp.solutions.drawing_utils
 
@@ -57,21 +52,8 @@ class HandDetector:
 
         return lmList
 
-    def FindMeanPosition(self, img):
-        lmList = self.FindPosition(img)
-        x_sum = y_sum = 0
 
-        for lm in lmList:
-            cx = lm[1]
-            cy = lm[2]
-            x_sum += cx
-            y_sum += cy
-
-        x_mean = x_sum / 21
-        y_mean = y_sum / 21
-        return lmList, round(x_mean), round(y_mean)
-
-
+# Testing
 def main():
     capture = cv2.VideoCapture(0)
     previous_time = 0
@@ -107,9 +89,7 @@ def main():
         fps = 1 / (current_time - previous_time)
         previous_time = current_time
 
-        cv2.putText(
-            img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3
-        )
+        cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 255), 3)
 
         cv2.imshow("Image", img)
 
