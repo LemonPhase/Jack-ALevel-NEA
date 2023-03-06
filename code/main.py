@@ -105,6 +105,7 @@ class Game:
     def update_leader_board(self):
         self.leader_board.append([self.score, int(round(self.play_time, 0))])
         # Sort by the first index, reverse order
+        # More efficient than writing my own sorting algorithm
         self.leader_board.sort(key=lambda x: x[0], reverse=True)
         # List comprehension
         new_leader_board = [[str(i) for i in lst] for lst in self.leader_board]

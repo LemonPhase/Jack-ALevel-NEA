@@ -101,9 +101,7 @@ class Eldredth(Alien):
 
     def attack(self):
         if self.ready:
-            self.lasers.add(
-                Laser(self.rect.center, self.y_max, "green", laser_speed=-10)
-            )
+            self.lasers.add(Laser(self.rect.center, self.y_max, "green", laser_speed=-10))
             self.laser_sound.play()
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
@@ -125,6 +123,7 @@ class Dash(Alien):
 
     def attack(self):
         k = 0.5
+        # Complex maths
         self.current_player = self.player_sprite.rect.center
         dx = self.current_player[0] - self.rect.center[0]
         dy = self.current_player[1] - self.rect.center[1]
