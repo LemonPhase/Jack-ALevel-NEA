@@ -218,11 +218,15 @@ class Game:
         # Player lasers
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
-                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, True)
+                alien_hit = pygame.sprite.spritecollide(laser, self.aliens, False)
                 if alien_hit:
                     self.explosion_sound.play()
                     for alien in alien_hit:
                         self.score += alien.score
+                        # Explosion visual effect
+                        alien.destroy()
+                        self.aliens.draw(screen)
+                        alien.kill()
                     laser.kill()
 
         # Alien lasers

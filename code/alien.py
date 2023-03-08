@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-from laser import Laser, Bomb
+from laser import Laser
 
 
 # Abstract class for alien species
@@ -49,6 +49,9 @@ class Alien(pygame.sprite.Sprite):
             if current_time - self.attack_time >= self.move_cooldown:
                 self.ready = True
 
+    def destroy(self):
+        pass
+
     def constraint(self):
         # Prevent alien from going out of bounds of the display window
         if self.rect.left <= 0:
@@ -78,6 +81,7 @@ class Ax(Alien):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
+        self.size = size
         self.speed = speed
         self.score = 10
 
@@ -96,6 +100,10 @@ class Ax(Alien):
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 
+    def destroy(self):
+        self.image = pygame.image.load("..\Graphics\Explosion.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, self.size)
+
 
 # Eldredth alien class
 class Eldredth(Alien):
@@ -104,6 +112,7 @@ class Eldredth(Alien):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
+        self.size = size
         self.speed = speed
         self.score = 10
 
@@ -114,6 +123,10 @@ class Eldredth(Alien):
             self.ready = False
             self.attack_time = pygame.time.get_ticks()
 
+    def destroy(self):
+        self.image = pygame.image.load("..\Graphics\Explosion.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, self.size)
+
 
 class Dash(Alien):
     def __init__(self, x_max, y_max, player_sprite, size=(50, 50), speed=7):
@@ -121,6 +134,7 @@ class Dash(Alien):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, size)
         super().__init__(x_max, y_max, player_sprite, size)
+        self.size = size
         self.speed = speed
         self.score = 5
         self.current_player = (0, 0)
@@ -150,3 +164,7 @@ class Dash(Alien):
 
         self.rect.x += dx / distance * self.speed
         self.rect.y += dy / distance * self.speed
+
+    def destroy(self):
+        self.image = pygame.image.load("..\Graphics\Explosion.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, self.size)
