@@ -7,6 +7,7 @@ import random
 from player import Player
 from alien import Ax, Eldredth, Dash
 from button import Button
+from login import Login
 
 # https://www.youtube.com/watch?v=o-6pADy5Mdg&t=108s (Thank you for saving my life, ily)
 
@@ -543,6 +544,9 @@ def main_menu():
     game = Game()
     pygame.display.set_caption("Main Menu")
     running = True
+
+    GameLogin = Login()
+    GameLogin.run()
 
     # Music
     music = pygame.mixer.Sound("..\Audio\GalaxyNauts.wav")
