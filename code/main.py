@@ -37,6 +37,7 @@ class Game:
         try:
             self.capture = cv2.VideoCapture(0)
             self.has_capture = True
+            # self.has_capture = False
             if self.capture == None or not self.capture.isOpened():
                 self.has_capture = False
         except:
