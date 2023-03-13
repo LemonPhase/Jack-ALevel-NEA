@@ -9,8 +9,6 @@ from alien import Ax, Eldredth, Dash
 from button import Button
 from login import Login
 
-# https://www.youtube.com/watch?v=o-6pADy5Mdg&t=108s (Thank you for saving my life, ily)
-
 
 os.chdir(os.path.dirname(__file__))
 
